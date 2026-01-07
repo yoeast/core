@@ -1,0 +1,26 @@
+{
+  "name": "core",
+  "module": "core/index.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "exports": {
+    ".": "./core/index.ts",
+    "./main": "./core/main.ts",
+    "./*": "./core/*"
+  },
+  "private": true,
+  "scripts": {
+    "cli": "bun cli.ts",
+    "serve": "bun cli.ts serve",
+    "dev": "bun --watch cli.ts serve --dev"
+  },
+  "type": "module",
+  "dependencies": {
+    "handlebars": "^4.7.8",
+    "mongoose": "^9.1.2"
+  }
+}

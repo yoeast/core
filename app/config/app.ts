@@ -1,0 +1,11 @@
+/**
+ * Application configuration.
+ * These values override the core defaults.
+ */
+
+import { env } from "@core";
+
+export default {
+  name: env("APP_NAME", "My App"),
+  version: "1.0.0",
+};

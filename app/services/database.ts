@@ -1,0 +1,48 @@
+/**
+ * Database service - manages MongoDB connection via Mongoose.
+ */
+
+import mongoose from "mongoose";
+import { Service } from "@core";
+import { config } from "@core/config";
+
+export interface DatabaseInfo {
+  connected: boolean;
+  host?: string;
+  port?: number;
+  name?: string;
+}
+
+export default class DatabaseService extends Service {
+  /**
+   * The Mongoose connection instance.
+   */
+  connection!: typeof mongoose;
+
+  async boot(): Promise<void> {
+    const uri = config<string>("database.uri");
+
+    if (!uri) {
+      throw new Error("Database URI not configured. Set MONGODB_URI in .env");
+    }
+
+    this.connection = await mongoose.connect(uri);
+  }
+
+  async shutdown(): Promise<void> {
+    await this.connection.disconnect();
+  }
+
+  /**
+   * Get database connection info for health checks and logging.
+   */
+  getInfo(): DatabaseInfo {
+    const conn = this.connection.connection;
+    return {
+      connected: conn.readyState === 1,
+      host: conn.host,
+      port: conn.port,
+      name: conn.name,
+    };
+  }
+}
