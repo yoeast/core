@@ -1,32 +1,37 @@
 import { describe, expect, test } from "bun:test";
 import { LruCacheStore } from "../../../core/cache";
 
-function makeEntry(value: string) {
-  return { etag: value, body: value, contentType: "text/plain", status: 200, createdAt: Date.now() };
+interface TestEntry {
+  value: string;
+}
+
+function makeEntry(value: string): TestEntry {
+  return { value };
 }
 
 describe("lru cache store", () => {
-  test("evicts least recently used", () => {
-    const store = new LruCacheStore(2);
-    store.set("a", makeEntry("a"));
-    store.set("b", makeEntry("b"));
+  test("evicts least recently used", async () => {
+    const store = new LruCacheStore({ max: 2 });
+    await store.set("a", makeEntry("a"));
+    await store.set("b", makeEntry("b"));
 
     // touch a so b is LRU
-    expect(store.get("a")?.etag).toBe("a");
+    const entryA = await store.get<TestEntry>("a");
+    expect(entryA?.value).toBe("a");
 
-    store.set("c", makeEntry("c"));
+    await store.set("c", makeEntry("c"));
 
-    expect(store.get("b")).toBe(null);
-    expect(store.get("a")?.etag).toBe("a");
-    expect(store.get("c")?.etag).toBe("c");
+    expect(await store.get("b")).toBe(null);
+    expect((await store.get<TestEntry>("a"))?.value).toBe("a");
+    expect((await store.get<TestEntry>("c"))?.value).toBe("c");
   });
 
   test("respects ttl", async () => {
     const store = new LruCacheStore();
-    store.set("a", makeEntry("a"), 10);
-    expect(store.get("a")?.etag).toBe("a");
+    await store.set("a", makeEntry("a"), 0.01); // 10ms TTL
+    expect((await store.get<TestEntry>("a"))?.value).toBe("a");
 
     await new Promise((resolve) => setTimeout(resolve, 15));
-    expect(store.get("a")).toBe(null);
+    expect(await store.get("a")).toBe(null);
   });
 });

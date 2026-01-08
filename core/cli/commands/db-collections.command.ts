@@ -7,8 +7,8 @@ import { hasService, service } from "../../service";
 import type DatabaseService from "@app/services/database";
 
 export default class DbCollectionsCommand extends Command {
-  static signature = "db:collections";
-  static description = "List all collections in the database";
+  static override signature = "db:collections";
+  static override description = "List all collections in the database";
 
   async handle(): Promise<number> {
     if (!hasService("database")) {
@@ -17,7 +17,7 @@ export default class DbCollectionsCommand extends Command {
     }
 
     const db = service<DatabaseService>("database");
-    const collections = await db.connection.connection.db.listCollections().toArray();
+    const collections = await db.connection.connection.db!.listCollections().toArray();
 
     if (collections.length === 0) {
       this.io.info("No collections found");

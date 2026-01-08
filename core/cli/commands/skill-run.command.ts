@@ -8,14 +8,14 @@ import { pathToFileURL } from "node:url";
 import { Command } from "../command";
 
 export default class SkillRunCommand extends Command {
-  static signature = "skill:run {skill}";
-  static description = "Execute a skill with --options passed to the skill handler";
+  static override signature = "skill:run {skill}";
+  static override description = "Execute a skill with --options passed to the skill handler";
 
   // Override to allow pass-through of unknown options
-  static allowUnknownOptions = true;
+  static override allowUnknownOptions = true;
 
   async handle(): Promise<number> {
-    const skillName = this.argument<string>("skill");
+    const skillName = this.argument("skill", "") as string;
 
     if (!skillName) {
       this.io.error("Skill name is required");

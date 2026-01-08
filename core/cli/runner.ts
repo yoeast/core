@@ -61,7 +61,7 @@ export class Runner {
       return 0;
     }
 
-    const commandName = argv[0];
+    const commandName = argv[0]!;
 
     // Built-in help flags
     if (commandName === "--help" || commandName === "-h") {
@@ -73,7 +73,7 @@ export class Runner {
     if (argv.includes("--help") || argv.includes("-h")) {
       const CommandClass = this.commands.get(commandName);
       if (CommandClass) {
-        const instance = new CommandClass();
+        const instance = new (CommandClass as new () => Command)();
         instance.showHelp();
         return 0;
       }
@@ -107,7 +107,7 @@ export class Runner {
     try {
       const { args, opts } = parseArgs(argv, parsed, { allowUnknownOptions });
 
-      const instance = new CommandClass();
+      const instance = new (CommandClass as new () => Command)();
       instance._init(args, opts);
 
       return await instance.handle();
@@ -126,7 +126,7 @@ export class Runner {
    */
   private showGlobalHelp(): void {
     console.log();
-    console.log(color("  Core Framework", COLORS.bold, COLORS.green));
+    console.log(color("  Core", COLORS.bold, COLORS.green));
     console.log();
     console.log(color("  Usage:", COLORS.yellow) + " bun cli " + color("<command>", COLORS.cyan) + " [arguments] [options]");
     console.log();
@@ -137,7 +137,7 @@ export class Runner {
 
     for (const [name, CommandClass] of this.commands) {
       const parts = name.split(":");
-      const namespace = parts.length > 1 ? parts[0] : "";
+      const namespace = parts.length > 1 ? parts[0]! : "";
       const description = CommandClass.description || "";
 
       if (!grouped.has(namespace)) {

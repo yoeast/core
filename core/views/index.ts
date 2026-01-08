@@ -7,6 +7,7 @@ import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import Handlebars from "handlebars";
 import { config } from "../config";
+import { logError } from "../logger";
 
 let viewsDir: string = "";
 let cacheDir: string = "";
@@ -82,7 +83,7 @@ async function loadPlugins(dir: string): Promise<void> {
           }
         }
       } catch (error) {
-        console.error(`Failed to load plugin from ${file.name}:`, error);
+        logError(`Failed to load plugin from ${file.name}:`, error);
       }
     }
   } catch (error) {

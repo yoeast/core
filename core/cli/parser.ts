@@ -55,13 +55,13 @@ export function parseArgs(
   let i = 0;
 
   while (i < argv.length) {
-    const token = argv[i];
+    const token = argv[i]!;
 
     if (token === "--") {
       // Everything after -- is positional
       i++;
       while (i < argv.length) {
-        assignArg(argv[i], argIndex, signature, args);
+        assignArg(argv[i]!, argIndex, signature, args);
         argIndex++;
         i++;
       }
@@ -111,9 +111,9 @@ export function parseArgs(
           value = argv[i];
         }
         if (opt.isArray) {
-          (opts[opt.name] as string[]).push(value);
+          (opts[opt.name] as string[]).push(value!);
         } else {
-          opts[opt.name] = value;
+          opts[opt.name] = value!;
         }
       } else {
         opts[opt.name] = true;
@@ -123,7 +123,7 @@ export function parseArgs(
       const chars = token.slice(1);
 
       for (let j = 0; j < chars.length; j++) {
-        const char = chars[j];
+        const char = chars[j]!;
         const opt = optionByShort.get(char);
 
         if (!opt) {
@@ -141,7 +141,7 @@ export function parseArgs(
             if (i >= argv.length) {
               throw new Error(`Option -${char} requires a value`);
             }
-            value = argv[i];
+            value = argv[i]!;
           }
 
           if (opt.isArray) {

@@ -5,13 +5,13 @@
 import { Command } from "../command";
 
 export default class CronCommand extends Command {
-  static signature = `
+  static override signature = `
     cron
     {job? : Run a specific cron job immediately}
     {--once : Run once and exit (don't schedule)}
   `;
 
-  static description = "Run cron job scheduler";
+  static override description = "Run cron job scheduler";
 
   async handle(): Promise<number> {
     const job = this.argument("job");

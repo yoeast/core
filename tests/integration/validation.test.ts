@@ -26,7 +26,7 @@ describe("validation integration", () => {
         body: JSON.stringify({}),
       });
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as { message: string };
       expect(body.message).toBe("Missing name");
     } finally {
       await server.stop();

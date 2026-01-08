@@ -1,4 +1,5 @@
 import type { RouteParams } from "./types";
+import type { ServerWebSocket } from "bun";
 
 export abstract class WebSocketController {
   private req!: Request;
@@ -23,10 +24,9 @@ export abstract class WebSocketController {
     return new URLSearchParams(this.query);
   }
 
-  abstract open(ws: ServerWebSocket): void | Promise<void>;
-  message?(ws: ServerWebSocket, message: string | Uint8Array): void | Promise<void>;
-  close?(ws: ServerWebSocket, code: number, reason: string): void | Promise<void>;
-  error?(ws: ServerWebSocket, error: Error): void | Promise<void>;
+  abstract open(ws: ServerWebSocket<unknown>): void | Promise<void>;
+  message?(ws: ServerWebSocket<unknown>, message: string | Uint8Array): void | Promise<void>;
+  close?(ws: ServerWebSocket<unknown>, code: number, reason: string): void | Promise<void>;
 }
 
 export type WebSocketControllerConstructor = new () => WebSocketController;

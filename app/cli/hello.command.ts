@@ -1,14 +1,14 @@
 import { Command } from "@core";
 
 export default class HelloCommand extends Command {
-  static signature = `
+  static override signature = `
     hello
     {name? : Name to greet}
     {--u|uppercase : SHOUT THE GREETING}
     {--t|times=1 : Number of times to greet}
   `;
 
-  static description = "Say hello to someone";
+  static override description = "Say hello to someone";
 
   async handle(): Promise<number> {
     const name = this.argument("name", "World");

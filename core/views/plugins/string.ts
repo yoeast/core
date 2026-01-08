@@ -38,6 +38,17 @@ export function register(hbs: typeof Handlebars): void {
     return encodeURIComponent(str ?? "");
   });
 
+  // Trim whitespace
+  hbs.registerHelper("trim", (str: string) => {
+    return str?.trim() ?? "";
+  });
+
+  // Replace substring
+  hbs.registerHelper("replace", (str: string, search: string, replacement: string) => {
+    if (!str) return "";
+    return str.replace(new RegExp(search, "g"), replacement ?? "");
+  });
+
   // Pluralize (1 "item", 2 "items")
   hbs.registerHelper("pluralize", (count: number, singular: string, plural?: string) => {
     const p = typeof plural === "string" ? plural : `${singular}s`;

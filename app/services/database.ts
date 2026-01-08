@@ -3,6 +3,7 @@
  */
 
 import mongoose from "mongoose";
+import type { Db } from "mongodb";
 import { Service } from "@core";
 import { config } from "@core/config";
 
@@ -29,8 +30,16 @@ export default class DatabaseService extends Service {
     this.connection = await mongoose.connect(uri);
   }
 
-  async shutdown(): Promise<void> {
+  override async shutdown(): Promise<void> {
     await this.connection.disconnect();
+  }
+
+  /**
+   * Get the raw MongoDB Db instance for direct operations.
+   * Useful for migrations, aggregations, and operations not covered by Mongoose.
+   */
+  getDb(): Db {
+    return this.connection.connection.db!;
   }
 
   /**

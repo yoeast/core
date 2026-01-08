@@ -1,6 +1,6 @@
 import path from "node:path";
 import { readdir } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import type {
   ParamMatcher,
   RouteDefinition,
@@ -14,9 +14,12 @@ import type { PluginConstructor } from "./plugin";
 import type { CronJobConstructor, QueueJobConstructor } from "./jobs";
 import type { WebSocketControllerConstructor } from "./websocket";
 import type { SseControllerConstructor } from "./sse";
-import { LruCacheStore, type CacheStore } from "./cache";
 
 const ROUTE_EXTENSIONS = new Set([".ts", ".js", ".tsx", ".jsx"]);
+
+// Get the directory where core is installed (works whether local or in node_modules)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CORE_DIR = __dirname; // This file is in core/, so __dirname IS core/
 
 export interface LoadedApp {
   routes: RouteDefinition[];
@@ -27,31 +30,84 @@ export interface LoadedApp {
   cron: CronJobConstructor[];
   queue: QueueJobConstructor[];
   params: Record<string, ParamMatcher>;
-  cacheStore: CacheStore;
 }
 
 export async function loadApp(rootDir: string): Promise<LoadedApp> {
   const appDir = path.join(rootDir, "app");
 
   const params = await loadParamMatchers(path.join(appDir, "params"));
-  const routes = await loadRoutes(path.join(appDir, "routes"), params);
-  const wsRoutes = await loadRealtimeRoutes<WebSocketControllerConstructor>(
+  
+  // Load core routes first (from wherever core is installed), then app routes
+  // App routes can override core routes by using the same path
+  const coreRoutes = await loadRoutes(path.join(CORE_DIR, "routes"), params);
+  const appRoutes = await loadRoutes(path.join(appDir, "routes"), params);
+  const routes = mergeRoutes(coreRoutes, appRoutes);
+  
+  const coreWsRoutes = await loadRealtimeRoutes<WebSocketControllerConstructor>(
+    path.join(CORE_DIR, "routes"),
+    params,
+    "ws"
+  );
+  const appWsRoutes = await loadRealtimeRoutes<WebSocketControllerConstructor>(
     path.join(appDir, "routes"),
     params,
     "ws"
   );
-  const sseRoutes = await loadRealtimeRoutes<SseControllerConstructor>(
+  const wsRoutes = mergeRealtimeRoutes(coreWsRoutes, appWsRoutes);
+  
+  const coreSseRoutes = await loadRealtimeRoutes<SseControllerConstructor>(
+    path.join(CORE_DIR, "routes"),
+    params,
+    "sse"
+  );
+  const appSseRoutes = await loadRealtimeRoutes<SseControllerConstructor>(
     path.join(appDir, "routes"),
     params,
     "sse"
   );
+  const sseRoutes = mergeRealtimeRoutes(coreSseRoutes, appSseRoutes);
+  
   const middleware = await loadMiddleware(path.join(appDir, "middleware"));
   const plugins = await loadClasses<PluginConstructor>(path.join(appDir, "plugins"));
   const cron = await loadClasses<CronJobConstructor>(path.join(appDir, "cron"));
   const queue = await loadClasses<QueueJobConstructor>(path.join(appDir, "queue"));
-  const cacheStore = new LruCacheStore();
 
-  return { routes, wsRoutes, sseRoutes, middleware, plugins, cron, queue, params, cacheStore };
+  return { routes, wsRoutes, sseRoutes, middleware, plugins, cron, queue, params };
+}
+
+/**
+ * Merge routes, with later routes overriding earlier ones (same method + path).
+ */
+function mergeRoutes(base: RouteDefinition[], override: RouteDefinition[]): RouteDefinition[] {
+  const routeMap = new Map<string, RouteDefinition>();
+  
+  for (const route of base) {
+    routeMap.set(`${route.method}:${route.path}`, route);
+  }
+  for (const route of override) {
+    routeMap.set(`${route.method}:${route.path}`, route);
+  }
+  
+  return Array.from(routeMap.values());
+}
+
+/**
+ * Merge realtime routes, with later routes overriding earlier ones (same path).
+ */
+function mergeRealtimeRoutes<T>(
+  base: RealtimeRouteDefinition<T>[],
+  override: RealtimeRouteDefinition<T>[]
+): RealtimeRouteDefinition<T>[] {
+  const routeMap = new Map<string, RealtimeRouteDefinition<T>>();
+  
+  for (const route of base) {
+    routeMap.set(route.path, route);
+  }
+  for (const route of override) {
+    routeMap.set(route.path, route);
+  }
+  
+  return Array.from(routeMap.values());
 }
 
 async function loadRoutes(

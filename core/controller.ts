@@ -1,7 +1,29 @@
 import type { RouteParams, SchemaLike } from "./types";
 import { HttpError } from "./errors";
-import { getDefaultCacheStore, type CacheEntry } from "./cache";
+import { cache as cacheManager, type CacheStore } from "./cache";
 import { render, renderWithLayout } from "./views";
+import { type CorsConfig, type CorsOptions, applyCorsHeaders } from "./cors";
+import { HintCollector, type ResourceType, type ResourceHint } from "./hints";
+
+/** Response cache entry for HTTP caching with ETags */
+interface ResponseCacheEntry {
+  etag: string;
+  body: string;
+  contentType: string;
+  status: number;
+  createdAt: number;
+  ttl?: number;
+}
+
+/** Cache options for response methods */
+interface ResponseCacheOptions {
+  /** Cache key (defaults to request URL path) */
+  key?: string;
+  /** TTL in seconds (defaults to controller's responseCacheTtl) */
+  ttl?: number;
+  /** Disable caching for this response */
+  noCache?: boolean;
+}
 
 /** Symbol for internal server setter - not part of public API */
 export const kSetServer = Symbol("setServer");
@@ -14,8 +36,8 @@ export abstract class Controller {
   private validatedQuery: unknown;
   private validatedBody: unknown;
   private statusCode = 200;
-  private headers = new Headers();
-  private server?: Server;
+  protected headers = new Headers();
+  private server?: import("bun").Server<unknown>;
   protected maxBodyBytes = 1_048_576;
   protected schemaCoerce = false;
   protected schema?: {
@@ -23,6 +45,44 @@ export abstract class Controller {
     query?: SchemaLike<unknown>;
     body?: SchemaLike<unknown>;
   };
+
+  /** 
+   * Default TTL for response caching in seconds.
+   * Set to 0 or undefined to disable caching by default.
+   * Can be overridden per-response via options.
+   * @example
+   * protected responseCacheTtl = 300; // 5 minutes
+   */
+  protected responseCacheTtl?: number;
+
+  /**
+   * CORS configuration for this controller.
+   * - `true` - Enable CORS with defaults from config
+   * - `false` or undefined - No CORS headers (default)
+   * - `CorsOptions` - Custom CORS configuration
+   * @example
+   * // Enable with defaults
+   * protected cors = true;
+   * 
+   * // Custom configuration
+   * protected cors: CorsOptions = {
+   *   origin: ["https://example.com", "https://app.example.com"],
+   *   credentials: true,
+   * };
+   */
+  protected cors?: CorsConfig;
+
+  /** Hint collector for resource hints */
+  private hintCollector = new HintCollector();
+
+  /** 
+   * Access to the cache system for storing/retrieving data.
+   * @example
+   * const data = await this.cache.remember('key', 300, async () => fetchData());
+   */
+  protected get cache(): typeof cacheManager {
+    return cacheManager;
+  }
 
   async before(_req: Request): Promise<void> {}
   async after(_req: Request, _res: Response): Promise<void> {}
@@ -36,26 +96,94 @@ export abstract class Controller {
     this.validatedParams = undefined;
     this.validatedQuery = undefined;
     this.validatedBody = undefined;
+    this.hintCollector.clear();
 
     await this.applyValidation();
     await this.before(req);
-    const res = await this.handle();
+    let res = await this.handle();
     await this.after(req, res);
+    
+    // Apply CORS headers if configured
+    if (this.cors) {
+      res = applyCorsHeaders(req, res, this.cors);
+    }
+    
     return res;
   }
 
   protected abstract handle(): Promise<Response>;
 
+  /**
+   * Preload a resource (high priority, needed for current page).
+   * @example
+   * this.preload("/css/page.css", "style");
+   * this.preload("/fonts/custom.woff2", "font", { crossorigin: true });
+   */
+  protected preload(href: string, as: ResourceType, options?: {
+    crossorigin?: boolean | "anonymous" | "use-credentials";
+    media?: string;
+    mimeType?: string;
+    integrity?: string;
+    fetchpriority?: "high" | "low" | "auto";
+  }): void {
+    this.hintCollector.preload(href, as, options);
+  }
+
+  /**
+   * Preconnect to an origin (establish early connection).
+   * @example
+   * this.preconnect("https://api.example.com");
+   * this.preconnect("https://cdn.example.com", true); // with CORS
+   */
+  protected preconnect(href: string, crossorigin?: boolean | "anonymous" | "use-credentials"): void {
+    this.hintCollector.preconnect(href, crossorigin);
+  }
+
+  /**
+   * Prefetch a resource (low priority, might be needed for next navigation).
+   * @example
+   * this.prefetch("/api/users"); // Prefetch API data
+   * this.prefetch("/next-page.js", "script");
+   */
+  protected prefetch(href: string, as?: ResourceType): void {
+    this.hintCollector.prefetch(href, as);
+  }
+
+  /**
+   * DNS prefetch for an origin.
+   * @example
+   * this.dnsPrefetch("https://analytics.example.com");
+   */
+  protected dnsPrefetch(href: string): void {
+    this.hintCollector.dnsPrefetch(href);
+  }
+
+  /**
+   * Get collected hints (for server to send 103 Early Hints).
+   * @internal
+   */
+  getHints(): ResourceHint[] {
+    return this.hintCollector.getHints();
+  }
+
+  /**
+   * Check if controller has any hints.
+   * @internal
+   */
+  hasHints(): boolean {
+    return this.hintCollector.hasHints();
+  }
+
   protected getRequest(): Request {
     return this.req;
   }
 
-  protected getServer(): Server | undefined {
+  protected getServer(): import("bun").Server<unknown> | undefined {
     return this.server;
   }
 
   /** @internal */
-  [kSetServer](server: Server): void {
+  [kSetServer](server: import("bun").Server<unknown>): void {
     this.server = server;
   }
 
@@ -185,9 +313,9 @@ export abstract class Controller {
     return await this.req.text();
   }
 
-  protected async getBodyForm(): Promise<FormData> {
+  protected async getBodyForm(): Promise<globalThis.FormData> {
     this.assertBodySize();
-    return await this.req.formData();
+    return await this.req.formData() as globalThis.FormData;
   }
 
   protected status(code: number): this {
@@ -195,12 +323,24 @@ export abstract class Controller {
     return this;
   }
 
-  protected text(body: string, status?: number): Response {
-    return this.buildResponse(body, "text/plain; charset=utf-8", status);
+  /**
+   * Return a plain text response.
+   * @param body - Text content
+   * @param options - Cache options or status code
+   */
+  protected text(body: string, options?: number | ResponseCacheOptions): Promise<Response> {
+    const opts = typeof options === "number" ? { status: options } : options;
+    return this.cachedResponse(body, "text/plain; charset=utf-8", opts);
   }
 
-  protected json(data: unknown, status?: number): Response {
-    return this.buildResponse(JSON.stringify(data), "application/json; charset=utf-8", status);
+  /**
+   * Return a JSON response.
+   * @param data - Data to serialize as JSON
+   * @param options - Cache options or status code
+   */
+  protected json(data: unknown, options?: number | ResponseCacheOptions): Promise<Response> {
+    const opts = typeof options === "number" ? { status: options } : options;
+    return this.cachedResponse(JSON.stringify(data), "application/json; charset=utf-8", opts);
   }
 
   protected redirect(url: string, status = 302): Response {
@@ -217,20 +357,21 @@ export abstract class Controller {
    * 
    * @param name - Template name (relative to views/pages/)
    * @param data - Data to pass to the template
-   * @param options - Render options
+   * @param options - Render and cache options
    * @returns HTML Response
    * 
    * @example
    * return this.render('home', { title: 'Welcome' })
    * return this.render('home', { title: 'Welcome' }, { layout: 'layouts/admin' })
    * return this.render('home', { title: 'Welcome' }, { layout: false })
+   * return this.render('home', { title: 'Welcome' }, { ttl: 300 }) // Cache for 5 min
    */
   protected async render(
     name: string,
     data: Record<string, unknown> = {},
-    options: { layout?: string | false; status?: number } = {}
+    options: { layout?: string | false; status?: number } & ResponseCacheOptions = {}
   ): Promise<Response> {
-    const { layout = "layouts/main", status } = options;
+    const { layout = "layouts/main", status, ...cacheOpts } = options;
     
     let html: string;
     if (layout === false) {
@@ -239,16 +380,7 @@ export abstract class Controller {
       html = await renderWithLayout(`pages/${name}`, data, layout);
     }
     
-    return this.buildResponse(html, "text/html; charset=utf-8", status);
-  }
-
-  protected async cacheJson(key: string, data: unknown, ttlMs?: number): Promise<Response> {
-    const body = JSON.stringify(data);
-    return this.cacheResponse(key, body, "application/json; charset=utf-8", ttlMs);
-  }
-
-  protected async cacheText(key: string, data: string, ttlMs?: number): Promise<Response> {
-    return this.cacheResponse(key, data, "text/plain; charset=utf-8", ttlMs);
+    return this.cachedResponse(html, "text/html; charset=utf-8", { ...cacheOpts, status });
   }
 
   protected getValidatedParams<T = unknown>(): T | undefined {
@@ -274,48 +406,73 @@ export abstract class Controller {
     return result.data;
   }
 
-  private async cacheResponse(key: string, body: string, contentType: string, ttlMs?: number): Promise<Response> {
-    const store = getDefaultCacheStore();
-    const cached = await store.get(key);
-    if (cached) {
-      const ifNoneMatch = this.getHeader("If-None-Match");
-      if (ifNoneMatch && ifNoneMatch === cached.etag) {
-        return new Response(null, { status: 304, headers: { ETag: cached.etag } });
-      }
-      return new Response(cached.body, {
-        status: cached.status,
-        headers: this.buildCacheHeaders(cached),
-      });
+  /**
+   * Build a response with optional caching.
+   * Uses controller's responseCacheTtl as default, can be overridden per-call.
+   */
+  private async cachedResponse(
+    body: string,
+    contentType: string,
+    options: (ResponseCacheOptions & { status?: number }) | undefined
+  ): Promise<Response> {
+    const status = options?.status;
+    const noCache = options?.noCache;
+    const ttl = options?.ttl ?? this.responseCacheTtl;
+    
+    // If no caching configured or explicitly disabled, return plain response
+    if (!ttl || noCache || !cacheManager.isEnabled()) {
+      this.headers.set("X-Cache", "SKIP");
+      return this.buildResponse(body, contentType, status);
     }
 
+    // Generate cache key from request URL or use provided key
+    const cacheKey = options?.key ?? `response:${this.getUrl().pathname}${this.getUrl().search}`;
+    
+    // Check cache
+    const { value: cached, hit } = await cacheManager.getWithStatus<ResponseCacheEntry>(cacheKey);
+    
+    if (cached && hit) {
+      const ifNoneMatch = this.getHeader("If-None-Match");
+      if (ifNoneMatch && ifNoneMatch === cached.etag) {
+        const headers = new Headers({ ETag: cached.etag, "X-Cache": "HIT" });
+        return new Response(null, { status: 304, headers });
+      }
+      const headers = this.buildCacheHeaders(cached, true);
+      return new Response(cached.body, { status: cached.status, headers });
+    }
+
+    // Compute ETag and cache the response
     const etag = await this.computeEtag(body);
-    const entry: CacheEntry = {
+    const entry: ResponseCacheEntry = {
       etag,
       body,
       contentType,
-      status: this.statusCode,
+      status: status ?? this.statusCode,
       createdAt: Date.now(),
-      ttlMs,
+      ttl,
     };
-    await store.set(key, entry, ttlMs);
+    await cacheManager.set(cacheKey, entry, ttl);
 
+    // Check If-None-Match for new entry
     const ifNoneMatch = this.getHeader("If-None-Match");
     if (ifNoneMatch && ifNoneMatch === etag) {
-      return new Response(null, { status: 304, headers: { ETag: etag } });
+      const headers = new Headers({ ETag: etag, "X-Cache": "MISS" });
+      return new Response(null, { status: 304, headers });
     }
 
     return new Response(body, {
-      status: this.statusCode,
-      headers: this.buildCacheHeaders(entry),
+      status: status ?? this.statusCode,
+      headers: this.buildCacheHeaders(entry, false),
     });
   }
 
-  private buildCacheHeaders(entry: CacheEntry): HeadersInit {
+  private buildCacheHeaders(entry: ResponseCacheEntry, hit: boolean): Headers {
     const headers = new Headers(this.headers);
     headers.set("Content-Type", entry.contentType);
     headers.set("ETag", entry.etag);
-    if (entry.ttlMs) {
-      headers.set("Cache-Control", `max-age=${Math.floor(entry.ttlMs / 1000)}`);
+    headers.set("X-Cache", hit ? "HIT" : "MISS");
+    if (entry.ttl) {
+      headers.set("Cache-Control", `max-age=${entry.ttl}`);
     }
     return headers;
   }
@@ -356,7 +513,7 @@ export abstract class Controller {
   }
 
   private buildResponse(
-    body: BodyInit | null,
+    body: string | ArrayBuffer | ReadableStream<Uint8Array> | null,
     contentType: string | null,
     status?: number
   ): Response {

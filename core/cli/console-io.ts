@@ -116,14 +116,14 @@ export class ConsoleIO {
 
     // Header
     const headerRow = headers
-      .map((h, i) => ` ${h.padEnd(colWidths[i])} `)
+      .map((h, i) => ` ${h.padEnd(colWidths[i]!)} `)
       .join("│");
     console.log(color(headerRow, COLORS.bold));
     console.log(divider);
 
     // Rows
     for (const row of rows) {
-      const rowStr = row.map((c, i) => ` ${(c || "").padEnd(colWidths[i])} `).join("│");
+      const rowStr = row.map((c, i) => ` ${(c || "").padEnd(colWidths[i]!)} `).join("│");
       console.log(rowStr);
     }
   }
@@ -222,7 +222,7 @@ export class ConsoleIO {
       return this.choice(question, choices, defaultIndex);
     }
 
-    return choices[index];
+    return choices[index]!;
   }
 
   /**

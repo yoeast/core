@@ -1,7 +1,7 @@
 import { Controller, HttpError } from "@core";
 
 export default class ValidatePost extends Controller {
-  protected schema = {
+  protected override schema = {
     body: (input: unknown) => {
       if (!input || typeof input !== "object") throw new HttpError(400, "Invalid body");
       const name = (input as { name?: string }).name;

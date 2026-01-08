@@ -19,7 +19,7 @@ describe("catch-all routes integration", () => {
       const longPath = "segment/".repeat(500) + "end";
       const res = await fetch(`${server.baseUrl}/files/${longPath}`);
       expect(res.status).toBe(200);
-      const body = await res.json();
+      const body = (await res.json()) as { path: string };
       expect(body.path.endsWith("end")).toBe(true);
       expect(body.path.length).toBeGreaterThan(1000);
     } finally {

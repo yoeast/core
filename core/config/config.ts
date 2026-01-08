@@ -6,6 +6,7 @@ import path from "node:path";
 import { readdir } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import coreDefaults from "./defaults";
+import { logError } from "../logger";
 
 type ConfigValue = string | number | boolean | null | undefined | ConfigObject | ConfigValue[];
 interface ConfigObject {
@@ -121,7 +122,7 @@ async function loadConfigDir(dir: string): Promise<ConfigObject> {
         const mod = await import(pathToFileURL(filePath).href);
         configs[name] = mod.default ?? mod;
       } catch (error) {
-        console.error(`Failed to load config file ${entry.name}:`, error);
+        logError(`Failed to load config file ${entry.name}:`, error);
       }
     }
   } catch (error) {

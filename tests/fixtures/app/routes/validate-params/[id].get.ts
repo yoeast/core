@@ -1,7 +1,7 @@
 import { Controller, HttpError } from "@core";
 
 export default class ValidateParamsGet extends Controller {
-  protected schema = {
+  protected override schema = {
     params: (input: unknown) => {
       const params = input as { id?: string };
       if (!params?.id) throw new HttpError(400, "Missing id");

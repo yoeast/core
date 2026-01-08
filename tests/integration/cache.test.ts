@@ -9,13 +9,15 @@ describe("cache integration", () => {
       expect(res1.status).toBe(200);
       const etag = res1.headers.get("ETag");
       expect(etag).not.toBeNull();
-      const body1 = await res1.json();
+      expect(res1.headers.get("X-Cache")).toBe("MISS"); // First request is a miss
+      const body1 = (await res1.json()) as { key: string };
       expect(body1.key).toBe("alpha");
 
       const res2 = await fetch(`${server.baseUrl}/cache?key=alpha`, {
         headers: { "If-None-Match": etag ?? "" },
       });
       expect(res2.status).toBe(304);
+      expect(res2.headers.get("X-Cache")).toBe("HIT"); // Second request is a hit
     } finally {
       await server.stop();
     }

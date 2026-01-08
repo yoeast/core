@@ -46,7 +46,7 @@ describe("param routes integration", () => {
       const query = Array.from({ length: 200 }, (_, i) => `k${i}=v${i}`).join("&");
       const res = await fetch(`${server.baseUrl}/echo/query?${query}`);
       expect(res.status).toBe(200);
-      const body = await res.json();
+      const body = (await res.json()) as { query: Record<string, string> };
       expect(body.query.k0).toBe("v0");
       expect(body.query.k199).toBe("v199");
     } finally {
@@ -59,7 +59,7 @@ describe("param routes integration", () => {
     try {
       const res = await fetch(`${server.baseUrl}/users/%E0%A4%A/posts/1`);
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as { message: string };
       expect(body.message).toBe("Invalid URL encoding");
     } finally {
       await server.stop();

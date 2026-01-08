@@ -7,8 +7,8 @@ import { readdir, readFile } from "node:fs/promises";
 import { Command } from "../command";
 
 export default class SkillListCommand extends Command {
-  static signature = "skill:list";
-  static description = "List available skills";
+  static override signature = "skill:list";
+  static override description = "List available skills";
 
   async handle(): Promise<number> {
     const rootDir = process.cwd();

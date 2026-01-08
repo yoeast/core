@@ -1,7 +1,7 @@
 import { Middleware, logRequest } from "@core";
 
 export default class LoggingMiddleware extends Middleware {
-  async handle(req: Request, next: () => Promise<Response>): Promise<Response> {
+  override async handle(req: Request, next: () => Promise<Response>): Promise<Response> {
     const start = Date.now();
     const res = await next();
     const ms = Date.now() - start;

@@ -143,6 +143,155 @@ export default class UsersController extends Controller {
 }
 ```
 
+## CORS (Cross-Origin Resource Sharing)
+
+CORS is configured per-controller using the `cors` property:
+
+```ts
+import { Controller } from "@core";
+import type { CorsOptions } from "@core";
+
+export default class ApiController extends Controller {
+  // Enable CORS with defaults (allows all origins)
+  protected cors = true;
+  
+  async handle() {
+    return this.json({ data: "value" });
+  }
+}
+```
+
+Custom CORS configuration:
+
+```ts
+export default class ApiController extends Controller {
+  protected cors: CorsOptions = {
+    origin: ["https://example.com", "https://app.example.com"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["X-Total-Count"],
+    maxAge: 86400, // 24 hours
+  };
+  
+  async handle() {
+    return this.json({ data: "value" });
+  }
+}
+```
+
+CORS options:
+- `origin` - `"*"` | `string` | `string[]` | `(origin: string) => boolean`
+- `methods` - Allowed HTTP methods (default: GET, HEAD, PUT, PATCH, POST, DELETE)
+- `allowedHeaders` - Headers the client can send (default: Content-Type, Authorization, X-Requested-With)
+- `exposedHeaders` - Headers exposed to the browser
+- `credentials` - Allow cookies/auth headers (default: false)
+- `maxAge` - Preflight cache duration in seconds (default: 86400)
+
+Default CORS config can be set in `app/config/cors.ts`:
+
+```ts
+export default {
+  origin: "*",
+  credentials: false,
+  maxAge: 86400,
+};
+```
+
+## Resource Hints (Preload, Preconnect)
+
+Optimize page loading with resource hints via HTTP `Link` headers. Browsers start fetching resources as soon as they receive headers, before the body streams.
+
+> **Note:** HTTP 103 Early Hints not yet supported by Bun.serve ([tracking issue](https://github.com/oven-sh/bun/issues/8690)). Link headers provide similar benefits.
+
+### Global Configuration
+
+Define always-needed resources in `app/config/hints.ts`:
+
+```ts
+export default {
+  // Resources to preload on every page
+  preload: [
+    { href: "/css/app.css", as: "style" },
+    { href: "/fonts/inter.woff2", as: "font", crossorigin: true },
+    { href: "/js/app.js", as: "script" },
+  ],
+  
+  // Origins to preconnect to
+  preconnect: [
+    { href: "https://api.example.com" },
+    { href: "https://cdn.example.com", crossorigin: true },
+  ],
+  
+  // Resources to prefetch (low priority)
+  prefetch: [
+    { href: "/api/user" },
+  ],
+  
+  // DNS to prefetch
+  dnsPrefetch: [
+    { href: "https://analytics.example.com" },
+  ],
+};
+```
+
+### Controller Hints
+
+Add page-specific hints in controllers:
+
+```ts
+export default class ProductController extends Controller {
+  async handle() {
+    // Preload page-specific resources
+    this.preload("/css/product.css", "style");
+    this.preload("/images/hero.webp", "image", { fetchpriority: "high" });
+    
+    // Preconnect to APIs this page uses
+    this.preconnect("https://reviews-api.example.com");
+    
+    // Prefetch likely next navigation
+    this.prefetch("/api/related-products");
+    
+    return this.render("product", { ... });
+  }
+}
+```
+
+### Handlebars Helpers
+
+Generate `<link>` tags in templates:
+
+```html
+<head>
+  {{! Preload critical resources }}
+  {{preload "/css/app.css" as="style"}}
+  {{preload "/fonts/inter.woff2" as="font" crossorigin=true}}
+  
+  {{! Preconnect to APIs }}
+  {{preconnect "https://api.example.com"}}
+  
+  {{! Prefetch next page resources }}
+  {{prefetch "/next-page.html"}}
+  
+  {{! DNS prefetch }}
+  {{dnsPrefetch "https://analytics.example.com"}}
+  
+  {{! Render all hints from array }}
+  {{resourceHints hints}}
+</head>
+```
+
+### Resource Types
+
+For `preload`, the `as` attribute specifies the resource type:
+- `style` - CSS stylesheets
+- `script` - JavaScript files
+- `font` - Web fonts (requires `crossorigin`)
+- `image` - Images
+- `fetch` - Data fetched via fetch/XHR
+- `document` - HTML documents
+- `audio`, `video` - Media files
+
 ## Services
 
 Services are singletons with lifecycle hooks, loaded from `app/services/`:
@@ -196,6 +345,126 @@ const userSchema = new Schema<IUser>(
 export const User = model<IUser>("User", userSchema);
 ```
 
+## API Controllers
+
+For API endpoints, use `ApiController` with Zod schemas for input/output validation:
+
+```ts
+// app/routes/api/users/[id].get.ts
+import { z } from "zod";
+import { ApiController } from "@core";
+import { User } from "@app/models/User";
+
+export default class GetUserController extends ApiController {
+  // Input schema (params + query + body merged)
+  static override input = z.object({
+    id: z.string().regex(/^[a-f\d]{24}$/i, "Invalid user ID"),
+  });
+
+  // Response schemas by status code
+  static override responses = {
+    200: z.object({
+      user: z.object({
+        id: z.string(),
+        email: z.string(),
+        name: z.string().nullable(),
+      }),
+    }),
+    404: z.object({
+      error: z.string(),
+      message: z.string(),
+    }),
+  };
+
+  protected override async handle(): Promise<Response> {
+    const { id } = this.input; // Typed and validated
+    const user = await User.findById(id);
+
+    if (!user) {
+      return this.response(404, { error: "NotFound", message: "User not found" });
+    }
+
+    return this.response(200, {
+      user: { id: user.id, email: user.email, name: user.name ?? null },
+    });
+  }
+}
+```
+
+### API Authentication
+
+```ts
+export default class ProtectedController extends ApiController {
+  protected override apiProtected = true;
+  protected override apiScopes = ["admin"]; // Optional: require scopes
+
+  static override responses = {
+    200: z.object({ data: z.string() }),
+  };
+
+  protected override async handle(): Promise<Response> {
+    const clientId = this.getClientId();
+    return this.response(200, { data: `Hello ${clientId}` });
+  }
+}
+```
+
+### OpenAPI Generation
+
+API routes auto-generate OpenAPI specs available at `/api/openapi.json`.
+
+## Migrations
+
+Database schema migrations in `app/migrations/`:
+
+```ts
+// app/migrations/2026_01_07_000001_create_users_indexes.ts
+import type { Db } from "mongodb";
+import { Migration } from "@core";
+
+export default class CreateUsersIndexes extends Migration {
+  async up(db: Db): Promise<void> {
+    await this.createIndex(db, "users", { email: 1 }, { unique: true });
+  }
+
+  async down(db: Db): Promise<void> {
+    await this.dropIndex(db, "users", "email_1");
+  }
+}
+```
+
+### Migration Helpers
+
+- `createIndex(db, collection, index, options)` - Create index
+- `dropIndex(db, collection, indexName)` - Drop index
+- `addField(db, collection, field, defaultValue)` - Add field to all docs
+- `removeField(db, collection, field)` - Remove field from all docs
+- `renameField(db, collection, oldName, newName)` - Rename field
+
+## Seeders
+
+Database seeders in `app/seeders/`:
+
+```ts
+// app/seeders/users.seeder.ts
+import type { Db } from "mongodb";
+import { Seeder } from "@core";
+
+export default class UsersSeeder extends Seeder {
+  async run(db: Db): Promise<void> {
+    await this.insertIfEmpty(db, "users", [
+      { email: "admin@example.com", name: "Admin", role: "admin" },
+    ]);
+  }
+}
+```
+
+### Seeder Helpers
+
+- `insertIfEmpty(db, collection, docs)` - Insert only if empty
+- `upsertByKey(db, collection, docs, keyField)` - Upsert by key
+- `truncate(db, collection)` - Clear collection
+
 ## CLI Commands
 
 Commands live in `app/cli/` or `core/cli/commands/`:
@@ -223,10 +492,102 @@ export default class GreetCommand extends Command {
 ### Built-in Commands
 
 ```bash
+# Server
 bun cli serve              # Start HTTP server
 bun cli list               # List all commands
+bun cli routes:list        # List all routes
+
+# Database
 bun cli db:collections     # List MongoDB collections
 bun cli db:query <col>     # Query a collection
+bun cli migrate            # Run pending migrations
+bun cli migrate:status     # Show migration status
+bun cli migrate:rollback   # Rollback last batch
+bun cli db:seed            # Run all seeders
+bun cli db:seed <name>     # Run specific seeder
+bun cli db:seed --list     # List available seeders
+
+# Cache
+bun cli cache:clear        # Clear all cache (prompts for confirmation)
+bun cli cache:clear --force  # Clear without confirmation
+bun cli cache:clear --tags=users,posts  # Clear by tags only
+
+# Skills
+bun cli skill:list         # List available skills
+bun cli skill:run <name>   # Run a skill
+```
+
+## Logging
+
+Pluggable logging system with multiple drivers and log levels:
+
+```ts
+import { log } from "@core";
+
+// Basic logging
+log.info("User logged in", { userId: 123 });
+log.warn("Rate limit approaching");
+log.error("Failed to connect", error);
+log.debug("Processing request", { path: "/api/users" });
+
+// Set log level at runtime
+log.setLevel("debug");  // Show all logs
+log.setLevel("warn");   // Only warn and error
+```
+
+### Log Levels
+
+- `debug` - Detailed debugging information
+- `info` - General information (default)
+- `warn` - Warning conditions
+- `error` - Error conditions
+
+### Custom Logger Configuration
+
+```ts
+import { Logger, StdoutDriver, FileDriver } from "@core";
+
+const logger = new Logger({
+  level: "debug",
+  drivers: [
+    new StdoutDriver({ colors: true }),
+    new FileDriver({ path: "storage/logs/app.log" }),
+  ],
+});
+
+logger.info("Custom logger ready");
+```
+
+### Custom Drivers
+
+Create custom log drivers by implementing `LogDriver`:
+
+```ts
+// app/loggers/slack.ts
+import type { LogDriver, LogEntry } from "@core";
+
+export class SlackDriver implements LogDriver {
+  readonly name = "slack";
+  
+  async log(entry: LogEntry): Promise<void> {
+    if (entry.level === "error") {
+      await fetch(webhookUrl, {
+        method: "POST",
+        body: JSON.stringify({ text: `🔴 ${entry.message}` }),
+      });
+    }
+  }
+}
+```
+
+### Configuration
+
+Default level set via `LOG_LEVEL` environment variable or in `app/config/logging.ts`:
+
+```ts
+export default {
+  level: "info",
+};
 ```
 
 ## Views (Handlebars)
@@ -353,6 +714,127 @@ export default class EventsController extends SseController {
 }
 ```
 
+## Cache System
+
+Multi-driver caching with LRU (default) and Redis support. Includes tags for bulk invalidation.
+
+### Basic Usage
+
+```ts
+import { cache } from "@core";
+
+// Get/Set values (TTL in seconds)
+await cache.set("key", { data: "value" }, 300);
+const data = await cache.get<{ data: string }>("key");
+
+// Remember pattern: get or compute
+const users = await cache.remember("users:all", 600, async () => {
+  return await User.find();
+});
+
+// Delete
+await cache.delete("key");
+await cache.clear(); // Clear all
+```
+
+### Controller Integration
+
+Controllers have a built-in `cache` property:
+
+```ts
+import { Controller } from "@core";
+
+export default class UsersController extends Controller {
+  async handle() {
+    // Use cache.remember for automatic caching
+    const users = await this.cache.remember("users:list", 300, async () => {
+      return await User.find().lean();
+    });
+    
+    return this.json(users);
+  }
+}
+```
+
+### Cache Tags
+
+Group related entries for bulk invalidation:
+
+```ts
+// Set with tags
+await cache.setWithTags("user:123", userData, ["users", "profile"], 300);
+await cache.setWithTags("user:456", otherData, ["users"], 300);
+
+// Tagged operations
+const tagged = cache.tags(["users"]);
+await tagged.set("posts:all", posts, 600);
+await tagged.flush(); // Delete all entries with "users" tag
+```
+
+### Controller Response Caching
+
+All response methods (`json()`, `text()`, `render()`) support caching with ETags:
+
+```ts
+import { Controller } from "@core";
+
+export default class UsersController extends Controller {
+  // Default TTL for all responses (in seconds)
+  protected responseCacheTtl = 300; // 5 minutes
+
+  async handle() {
+    // Uses default TTL, auto-generates cache key from URL
+    return this.json({ users: [] });
+    
+    // Override TTL for this response
+    return this.json({ users: [] }, { ttl: 60 });
+    
+    // Custom cache key
+    return this.json({ users: [] }, { key: "users:list" });
+    
+    // Disable caching for this response
+    return this.json({ users: [] }, { noCache: true });
+    
+    // Works with render() too
+    return this.render("users/list", { users }, { ttl: 600 });
+  }
+}
+```
+
+Response headers include:
+- `X-Cache: HIT` or `X-Cache: MISS` or `X-Cache: SKIP`
+- `ETag` for conditional requests
+- `Cache-Control: max-age=N`
+
+### Configuration
+
+```ts
+// .env
+CACHE_DRIVER=lru          # or "redis"
+CACHE_PREFIX=myapp:
+CACHE_TTL=3600
+
+# Redis settings (if using redis driver)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
+
+### Custom Drivers
+
+```ts
+// app/config/cache.ts
+export default {
+  default: "redis",
+  stores: {
+    redis: {
+      host: "redis.example.com",
+      port: 6379,
+      password: "secret",
+    },
+  },
+};
+```
+
 ## Testing
 
 ```ts
@@ -426,6 +908,20 @@ bun cli skill:run database-query --collection=users --fields=email,name --sort=c
 ```bash
 bun cli skill:run http-request --url=https://api.example.com/data
 bun cli skill:run http-request --url=https://api.example.com/users --method=POST --body='{"name":"John"}'
+```
+
+**migrations** - Database migration management
+```bash
+bun cli skill:run migrations --action=status    # Check migration status
+bun cli skill:run migrations --action=run       # Run pending migrations
+bun cli skill:run migrations --action=rollback  # Rollback last batch
+```
+
+**seeders** - Database seeder management
+```bash
+bun cli skill:run seeders --action=list         # List available seeders
+bun cli skill:run seeders --action=run          # Run all seeders
+bun cli skill:run seeders --action=run --name=users  # Run specific seeder
 ```
 
 ### Creating a New Skill

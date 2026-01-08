@@ -44,4 +44,54 @@ export default {
     path: "storage/logs",
     level: env("LOG_LEVEL", "info"),
   },
+
+  cache: {
+    default: env("CACHE_DRIVER", "lru"),
+    enabled: env("CACHE_ENABLED", true), // Set to false to disable caching
+    prefix: env("CACHE_PREFIX", "yoeast:"),
+    ttl: env("CACHE_TTL", 3600), // Default TTL in seconds
+    stores: {
+      lru: {
+        max: env("CACHE_LRU_MAX", 10000),
+        ttl: env("CACHE_LRU_TTL", 3600),
+      },
+      redis: {
+        host: env("REDIS_HOST", "localhost"),
+        port: env("REDIS_PORT", 6379),
+        password: env("REDIS_PASSWORD", ""),
+        db: env("REDIS_DB", 0),
+      },
+    },
+  },
+
+  api: {
+    tokenHeader: env("API_TOKEN_HEADER", "X-API-Token"),
+    rateLimit: {
+      enabled: env("API_RATE_LIMIT_ENABLED", false),
+      windowMs: env("API_RATE_LIMIT_WINDOW", 60000), // 1 minute
+      maxRequests: env("API_RATE_LIMIT_MAX", 100),
+    },
+  },
+
+  cors: {
+    origin: env("CORS_ORIGIN", "*"),
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: [],
+    credentials: env("CORS_CREDENTIALS", false),
+    maxAge: env("CORS_MAX_AGE", 86400), // 24 hours
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  },
+
+  hints: {
+    /** Resources to preload on every page */
+    preload: [],
+    /** Origins to preconnect to */
+    preconnect: [],
+    /** Resources to prefetch */
+    prefetch: [],
+    /** DNS to prefetch */
+    dnsPrefetch: [],
+  },
 };

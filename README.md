@@ -1,4 +1,4 @@
-# core
+# Core
 
 To install dependencies:
 

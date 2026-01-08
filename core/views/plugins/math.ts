@@ -14,9 +14,9 @@ export function register(hbs: typeof Handlebars): void {
   hbs.registerHelper("round", (a: number) => Math.round(a));
   hbs.registerHelper("abs", (a: number) => Math.abs(a));
   
-  // Min/max with multiple args
-  hbs.registerHelper("min", (...args: number[]) => Math.min(...args.slice(0, -1)));
-  hbs.registerHelper("max", (...args: number[]) => Math.max(...args.slice(0, -1)));
+  // Min/max with multiple args - use type assertion to handle Handlebars options object
+  hbs.registerHelper("min", (...args: unknown[]) => Math.min(...(args.slice(0, -1) as number[])));
+  hbs.registerHelper("max", (...args: unknown[]) => Math.max(...(args.slice(0, -1) as number[])));
 
   // Power and sqrt
   hbs.registerHelper("pow", (base: number, exp: number) => Math.pow(base, exp));

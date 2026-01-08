@@ -1,8 +1,8 @@
 import { Controller, HttpError } from "@core";
 
 export default class ValidateCoerceGet extends Controller {
-  protected schemaCoerce = true;
-  protected schema = {
+  protected override schemaCoerce = true;
+  protected override schema = {
     params: (input: unknown) => {
       const params = input as { id?: number };
       if (typeof params?.id !== "number") throw new HttpError(400, "Missing numeric id");

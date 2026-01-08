@@ -5,6 +5,7 @@
 import path from "node:path";
 import { readdir } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { logError } from "./logger";
 
 /**
  * Base class for services.
@@ -80,7 +81,7 @@ export async function bootServices(rootDir: string): Promise<void> {
         const ServiceClass = mod.default;
 
         if (!ServiceClass || !(ServiceClass.prototype instanceof Service)) {
-          console.error(`Service ${name} must export a default class extending Service`);
+          logError(`Service ${name} must export a default class extending Service`);
           continue;
         }
 
@@ -88,7 +89,7 @@ export async function bootServices(rootDir: string): Promise<void> {
         await instance.boot();
         services.set(name, instance);
       } catch (error) {
-        console.error(`Failed to boot service "${name}":`, error);
+        logError(`Failed to boot service "${name}":`, error);
         throw error;
       }
     }
@@ -116,7 +117,7 @@ export async function shutdownServices(): Promise<void> {
       await svc.shutdown();
     } catch (error) {
       errors.push(error as Error);
-      console.error(`Failed to shutdown service "${name}":`, error);
+      logError(`Failed to shutdown service "${name}":`, error);
     }
   }
 

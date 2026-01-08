@@ -1,18 +1,20 @@
 import type { HttpMethod } from "./types";
 import { loadApp } from "./loader";
-import { getAllowedMethods, matchPath, matchRoute } from "./router";
+import { getAllowedMethods, getRoutesForPath, matchPath, matchRoute } from "./router";
 import { applyMiddleware, type Middleware } from "./middleware";
 import type { AppContext } from "./plugin";
 import { HttpError } from "./errors";
-import { setDefaultCacheStore } from "./cache";
+import { initCache, shutdownCache, cache } from "./cache";
 import type { WebSocketController } from "./websocket";
 import { kSetServer } from "./controller";
 import { printStartupBanner, logError } from "./logger";
-import { initConfig } from "./config";
+import { initConfig, config } from "./config";
 import { initStatic, serveStaticWithCache } from "./static";
 import { initViews } from "./views";
 import { initStorage } from "./storage";
 import { bootServices, shutdownServices, hasService, service } from "./service";
+import { createPreflightResponse, type CorsConfig } from "./cors";
+import { buildLinkHeader, configToHints, type HintsConfig, type ResourceHint } from "./hints";
 
 export interface ServerOptions {
   rootDir?: string;
@@ -35,12 +37,18 @@ interface RequestWithIP extends Request {
 }
 
 let currentWsRoutes: WsRouteInfo[] = [];
+let currentServer: import("bun").Server<unknown> | undefined;
+let currentApp: import("./loader").LoadedApp | undefined;
 
 export function getWsRoutes(): WsRouteInfo[] {
   return [...currentWsRoutes];
 }
 
-export async function startServer(options: ServerOptions = {}): Promise<Server> {
+export function getLoadedRoutes(): import("./types").RouteDefinition[] {
+  return currentApp?.routes ?? [];
+}
+
+export async function startServer(options: ServerOptions = {}): Promise<import("bun").Server<unknown>> {
   const rootDir = options.rootDir ?? process.cwd();
   const development = options.development ?? process.env.NODE_ENV !== "production";
   const silent = options.silent ?? false;
@@ -50,16 +58,17 @@ export async function startServer(options: ServerOptions = {}): Promise<Server> 
   initStorage(rootDir);
   initStatic(rootDir);
   await initViews(rootDir);
+  await initCache();
   await bootServices(rootDir);
 
   const app = await loadApp(rootDir);
+  currentApp = app;
 
   const context: AppContext = {
     routes: app.routes,
     middleware: app.middleware,
   };
 
-  setDefaultCacheStore(app.cacheStore);
   currentWsRoutes = app.wsRoutes.map((r) => ({ path: r.path }));
 
   // Pre-instantiate middleware (they should be stateless)
@@ -70,7 +79,7 @@ export async function startServer(options: ServerOptions = {}): Promise<Server> 
     await plugin.init(context);
   }
 
-  let server: Server;
+  let server: import("bun").Server<unknown>;
 
   const innerFetch = async (req: Request): Promise<Response> => {
     try {
@@ -132,6 +141,16 @@ export async function startServer(options: ServerOptions = {}): Promise<Server> 
             allowed.add("HEAD");
           }
           if (allowed.size > 0) {
+            // Check if any matching route has CORS enabled for preflight
+            const matchingRoutes = getRoutesForPath(url.pathname, app.routes);
+            for (const route of matchingRoutes) {
+              const corsConfig = (route.Controller as unknown as { prototype: { cors?: CorsConfig } }).prototype.cors;
+              if (corsConfig) {
+                return createPreflightResponse(req, corsConfig);
+              }
+            }
+            
+            // No CORS, return basic Allow header
             const allowHeader = [...allowed, "OPTIONS"].sort().join(",");
             return new Response(null, {
               status: 204,
@@ -156,12 +175,33 @@ export async function startServer(options: ServerOptions = {}): Promise<Server> 
       }
 
       const controller = new match.route.Controller();
-      (controller as unknown as { [kSetServer]: (s: Server) => void })[kSetServer](server);
+      (controller as unknown as { [kSetServer]: (s: import("bun").Server<unknown>) => void })[kSetServer](server);
       const routeMiddleware =
         (match.route.Controller as unknown as { middleware?: typeof app.middleware }).middleware ?? [];
-      return await applyMiddleware(routeMiddleware, req, () =>
+      
+      let response = await applyMiddleware(routeMiddleware, req, () =>
         controller.run(req, match.params, url.searchParams)
       );
+      
+      // Add Link header for resource hints
+      const controllerHints = (controller as unknown as { getHints?: () => ResourceHint[] }).getHints?.() ?? [];
+      const hintsConfig = config<HintsConfig>("hints") ?? {};
+      const configHints = configToHints(hintsConfig);
+      const allHints = [...configHints, ...controllerHints];
+      
+      if (allHints.length > 0) {
+        const linkHeader = buildLinkHeader(allHints);
+        const existingLink = response.headers.get("Link");
+        const newHeaders = new Headers(response.headers);
+        newHeaders.set("Link", existingLink ? `${existingLink}, ${linkHeader}` : linkHeader);
+        response = new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: newHeaders,
+        });
+      }
+      
+      return response;
     } catch (error) {
       if (error instanceof Response) {
         return error;
@@ -224,10 +264,6 @@ export async function startServer(options: ServerOptions = {}): Promise<Server> 
         const controller = (ws.data as WsData | undefined)?.controller;
         controller?.close?.(ws, code, reason);
       },
-      error(ws, err) {
-        const controller = (ws.data as WsData | undefined)?.controller;
-        controller?.error?.(ws, err);
-      },
     },
   });
 
@@ -235,24 +271,29 @@ export async function startServer(options: ServerOptions = {}): Promise<Server> 
     // Get database info if available
     let database: { host?: string; port?: number; name?: string } | undefined;
     if (hasService("database")) {
-      const db = service<{ getInfo(): { host?: string; port?: number; name?: string } }>("database");
+      const db = service("database") as { getInfo?(): { host?: string; port?: number; name?: string } };
       if (typeof db.getInfo === "function") {
         database = db.getInfo();
       }
     }
 
+    // Get cache info
+    const cacheInfo = cache.getInfo();
+
     printStartupBanner({
-      hostname: server.hostname,
-      port: server.port,
+      hostname: server.hostname ?? "localhost",
+      port: server.port ?? port,
       routes: app.routes.length,
       wsRoutes: app.wsRoutes.length,
       sseRoutes: app.sseRoutes.length,
       middleware: app.middleware.length,
       development,
       database,
+      cache: cacheInfo,
     });
   }
 
+  currentServer = server;
   return server;
 }
 
@@ -260,8 +301,10 @@ export async function startServer(options: ServerOptions = {}): Promise<Server> 
  * Gracefully shutdown the server and all services.
  */
 export async function stopServer(): Promise<void> {
-  if (server) {
-    server.stop();
+  if (currentServer) {
+    currentServer.stop();
+    currentServer = undefined;
   }
+  await shutdownCache();
   await shutdownServices();
 }

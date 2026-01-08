@@ -24,6 +24,7 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       required: true,
+      select: false, // Never returned in queries unless explicitly requested with .select('+password')
     },
     name: {
       type: String,

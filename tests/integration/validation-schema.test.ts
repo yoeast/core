@@ -18,7 +18,7 @@ describe("validation schema vs matcher", () => {
     try {
       const res = await fetch(`${server.baseUrl}/validate-schema/abc`);
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as { message: string };
       expect(body.message).toBe("Schema requires numeric id");
     } finally {
       await server.stop();

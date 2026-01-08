@@ -5,7 +5,7 @@
 import { Command } from "../command";
 
 export default class QueueCommand extends Command {
-  static signature = `
+  static override signature = `
     queue
     {name? : Process a specific queue}
     {--once : Process one job and exit}
@@ -13,7 +13,7 @@ export default class QueueCommand extends Command {
     {--timeout=60 : Job timeout in seconds}
   `;
 
-  static description = "Run queue workers";
+  static override description = "Run queue workers";
 
   async handle(): Promise<number> {
     const name = this.argument("name");

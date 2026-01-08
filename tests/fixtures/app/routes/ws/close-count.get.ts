@@ -1,5 +1,5 @@
 import { Controller } from "@core";
-import { getCloseCount, resetClose } from "../../services/ws-state";
+import { getCloseCount, resetClose } from "../../utils/ws-state";
 
 export default class CloseCountGet extends Controller {
   protected async handle(): Promise<Response> {

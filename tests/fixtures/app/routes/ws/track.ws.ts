@@ -1,8 +1,10 @@
 import { WebSocketController } from "@core";
-import { incrementClose } from "../../services/ws-state";
+import { incrementClose } from "../../utils/ws-state";
 
 export default class TrackWs extends WebSocketController {
-  close(): void {
+  override open(): void {}
+  
+  override close(): void {
     incrementClose();
   }
 }

@@ -38,7 +38,7 @@ export function parseSignature(signature: string): ParsedSignature {
     throw new Error("Signature must include a command name");
   }
 
-  const name = tokens[0];
+  const name = tokens[0]!;
   if (name.startsWith("{")) {
     throw new Error("Signature must start with command name, not an argument");
   }
@@ -47,7 +47,7 @@ export function parseSignature(signature: string): ParsedSignature {
   const opts: ParsedOption[] = [];
 
   for (let i = 1; i < tokens.length; i++) {
-    const token = tokens[i];
+    const token = tokens[i]!;
     if (!token.startsWith("{") || !token.endsWith("}")) {
       throw new Error(`Invalid token in signature: ${token}`);
     }
@@ -108,7 +108,7 @@ function tokenize(signature: string): string[] {
  * Parse an argument definition: "name", "name?", "name=default", "name?*"
  */
 function parseArgument(inner: string): ParsedArgument {
-  const [definition, ...descParts] = inner.split(":");
+  const [definition = "", ...descParts] = inner.split(":");
   const description = descParts.join(":").trim();
   let def = definition.trim();
 
@@ -144,7 +144,7 @@ function parseArgument(inner: string): ParsedArgument {
  * Parse an option definition: "--flag", "--o|option", "--option=", "--option=default", "--option=*"
  */
 function parseOption(inner: string): ParsedOption {
-  const [definition, ...descParts] = inner.split(":");
+  const [definition = "", ...descParts] = inner.split(":");
   const description = descParts.join(":").trim();
   let def = definition.trim();
 
@@ -159,12 +159,12 @@ function parseOption(inner: string): ParsedOption {
   // Check for short alias: "a|admin" or "admin|a"
   if (def.includes("|")) {
     const parts = def.split("|");
-    if (parts[0].length === 1) {
+    if (parts[0]!.length === 1) {
       short = parts[0];
       def = parts.slice(1).join("|");
     } else if (parts[1] && parts[1].length === 1) {
       short = parts[1];
-      def = parts[0];
+      def = parts[0]!;
     } else {
       def = parts.join("|");
     }
@@ -256,8 +256,8 @@ export function generateHelp(
     const maxLen = Math.max(...optStrings.map((s) => s.length));
 
     for (let i = 0; i < parsed.options.length; i++) {
-      const opt = parsed.options[i];
-      const padded = optStrings[i].padEnd(maxLen + 2);
+      const opt = parsed.options[i]!;
+      const padded = optStrings[i]!.padEnd(maxLen + 2);
       let desc = opt.description || "";
       if (opt.default !== undefined) {
         desc += color(` (default: "${opt.default}")`, COLORS.dim);

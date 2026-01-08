@@ -40,4 +40,31 @@ export function register(hbs: typeof Handlebars): void {
   hbs.registerHelper("isString", (value: unknown) => typeof value === "string");
   hbs.registerHelper("isNumber", (value: unknown) => typeof value === "number");
   hbs.registerHelper("isBoolean", (value: unknown) => typeof value === "boolean");
+
+  // Get object keys
+  hbs.registerHelper("keys", (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      return Object.keys(obj);
+    }
+    return [];
+  });
+
+  // Get object values
+  hbs.registerHelper("values", (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      return Object.values(obj);
+    }
+    return [];
+  });
+
+  // Safe property access with dot notation
+  hbs.registerHelper("get", (obj: unknown, path: string) => {
+    if (!obj || typeof path !== "string") return undefined;
+    return path.split(".").reduce((acc: unknown, key: string) => {
+      if (acc && typeof acc === "object" && key in acc) {
+        return (acc as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, obj);
+  });
 }

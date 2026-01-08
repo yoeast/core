@@ -94,7 +94,7 @@ export function compileRoutePattern(
 
     if (segment.startsWith("[") && segment.endsWith("]")) {
       const inner = segment.slice(1, -1);
-      const [rawName, matcherName] = inner.split(":");
+      const [rawName = "", matcherName] = inner.split(":");
       const name = rawName.trim();
       const matcher = matcherName ? matchers[matcherName] : undefined;
       if (matcherName && !matcher) {
@@ -137,6 +137,21 @@ export function getAllowedMethods(pathname: string, routes: RouteDefinition[]): 
     allowed.add(route.method);
   }
   return allowed;
+}
+
+/**
+ * Get all routes matching a path (any method).
+ * Used for CORS preflight to check if any route has CORS enabled.
+ */
+export function getRoutesForPath(pathname: string, routes: RouteDefinition[]): RouteDefinition[] {
+  const matching: RouteDefinition[] = [];
+  for (const route of routes) {
+    const params = matchPattern(pathname, route.pattern);
+    if (params) {
+      matching.push(route);
+    }
+  }
+  return matching;
 }
 
 function matchPattern(pathname: string, pattern: RoutePattern): RouteParams | null {

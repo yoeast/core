@@ -6,15 +6,15 @@ describe("controller body parsing", () => {
     class SafeParseController extends Controller {
       protected async handle(): Promise<Response> {
         const body = await this.getBodyJson({
-          safeParse: (input: unknown) => {
+          safeParse: (input: unknown): { success: boolean; data: { ok: boolean } | undefined; error: unknown } => {
             if (typeof input !== "object" || !input) {
-              return { success: false, error: new Error("invalid") };
+              return { success: false, data: undefined, error: new Error("invalid") };
             }
             const value = (input as { ok?: boolean }).ok;
             if (value !== true) {
-              return { success: false, error: new Error("invalid") };
+              return { success: false, data: undefined, error: new Error("invalid") };
             }
-            return { success: true, data: { ok: true } };
+            return { success: true, data: { ok: true }, error: undefined };
           },
         });
         return this.json(body);
@@ -30,7 +30,6 @@ describe("controller body parsing", () => {
     const res = await controller.run(req, {}, new URL(req.url).searchParams);
     expect(await res.json()).toEqual({ ok: true });
   });
-});
 
   test("throws HttpError on invalid json payload", async () => {
     class InvalidJsonController extends Controller {
@@ -52,3 +51,4 @@ describe("controller body parsing", () => {
       HttpError
     );
   });
+});

@@ -18,7 +18,7 @@ describe("websocket close integration", () => {
       });
 
       const res = await fetch(`${server.baseUrl}/ws/close-count`);
-      const body = await res.json();
+      const body = (await res.json()) as { closeCount: number };
       expect(body.closeCount).toBe(1);
     } finally {
       await server.stop();

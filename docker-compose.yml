@@ -1,8 +1,17 @@
 services:
   mongodb:
     image: mongo:latest
-    container_name: core-mongodb
+    container_name: yoeast-mongodb
     ports:
       - "27017:27017"
     volumes:
       - ./storage/data/mongodb:/data/db
+
+  redis:
+    image: redis:alpine
+    container_name: yoeast-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./storage/data/redis:/data
+    command: redis-server --appendonly yes

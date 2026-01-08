@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function getStatusColor(status: number): string {
-  const firstDigit = String(status)[0];
+  const firstDigit = String(status)[0]!;
   return STATUS_COLORS[firstDigit] || COLORS.white;
 }
 
@@ -117,18 +117,39 @@ export function logRequest(
 /**
  * Log an error.
  */
-export function logError(message: string, error?: Error): void {
+export function logError(message: string, error?: unknown): void {
   const timestamp = formatTimestamp();
+  const errorObj = error instanceof Error ? error : undefined;
+  const errorMessage = error instanceof Error ? error.message : error ? String(error) : undefined;
+  
   if (plainMode) {
     console.error(`${timestamp} ERROR ${message}`);
-    if (error?.stack) {
-      console.error(error.stack);
+    if (errorMessage) {
+      console.error(errorMessage);
+    }
+    if (errorObj?.stack) {
+      console.error(errorObj.stack);
     }
   } else {
     console.error(`${timestamp} ${color("ERROR", COLORS.red, COLORS.bold)} ${message}`);
-    if (error?.stack) {
-      console.error(color(error.stack, COLORS.dim));
+    if (errorMessage && !errorObj) {
+      console.error(color(errorMessage, COLORS.dim));
     }
+    if (errorObj?.stack) {
+      console.error(color(errorObj.stack, COLORS.dim));
+    }
+  }
+}
+
+/**
+ * Log a warning.
+ */
+export function logWarn(message: string): void {
+  const timestamp = formatTimestamp();
+  if (plainMode) {
+    console.warn(`${timestamp} WARN ${message}`);
+  } else {
+    console.warn(`${timestamp} ${color("WARN", COLORS.yellow, COLORS.bold)} ${message}`);
   }
 }
 
@@ -144,8 +165,9 @@ export function printStartupBanner(options: {
   middleware: number;
   development: boolean;
   database?: { host?: string; port?: number; name?: string };
+  cache?: { driver: string; enabled: boolean };
 }): void {
-  const { hostname, port, routes, wsRoutes, sseRoutes, middleware, development, database } = options;
+  const { hostname, port, routes, wsRoutes, sseRoutes, middleware, development, database, cache } = options;
   const url = `http://${hostname === "0.0.0.0" ? "localhost" : hostname}:${port}`;
 
   if (plainMode) {
@@ -155,6 +177,9 @@ export function printStartupBanner(options: {
     console.log(`Middleware: ${middleware}`);
     if (database) {
       console.log(`Database: ${database.name} @ ${database.host}:${database.port}`);
+    }
+    if (cache) {
+      console.log(`Cache: ${cache.driver} (${cache.enabled ? "enabled" : "disabled"})`);
     }
     return;
   }
@@ -174,6 +199,10 @@ export function printStartupBanner(options: {
   if (database) {
     rows.push(["", ""]);
     rows.push(["Database", color(`${database.name}`, COLORS.cyan) + color(` @ ${database.host}:${database.port}`, COLORS.dim)]);
+  }
+
+  if (cache) {
+    rows.push(["Cache", color(cache.driver, COLORS.cyan) + color(` (${cache.enabled ? "enabled" : "disabled"})`, cache.enabled ? COLORS.green : COLORS.yellow)]);
   }
 
   for (const [label, value] of rows) {

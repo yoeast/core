@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { applyMiddleware, Middleware } from "@core/middleware";
 
 class First extends Middleware {
-  async handle(_req: Request, next: () => Promise<Response>): Promise<Response> {
+  override async handle(_req: Request, next: () => Promise<Response>): Promise<Response> {
     const res = await next();
     res.headers.set("X-First", "1");
     return res;
@@ -10,7 +10,7 @@ class First extends Middleware {
 }
 
 class Second extends Middleware {
-  async handle(_req: Request, next: () => Promise<Response>): Promise<Response> {
+  override async handle(_req: Request, next: () => Promise<Response>): Promise<Response> {
     const res = await next();
     res.headers.set("X-Second", "1");
     return res;
@@ -29,7 +29,7 @@ describe("middleware chain", () => {
     let reached = false;
 
     class EarlyExit extends Middleware {
-      async handle(): Promise<Response> {
+      override async handle(): Promise<Response> {
         return new Response("blocked", { status: 401 });
       }
     }
@@ -43,11 +43,10 @@ describe("middleware chain", () => {
     expect(res.status).toBe(401);
     expect(await res.text()).toBe("blocked");
   });
-});
 
   test("throws if next called twice", async () => {
     class DoubleNext extends Middleware {
-      async handle(_req: Request, next: () => Promise<Response>): Promise<Response> {
+      override async handle(_req: Request, next: () => Promise<Response>): Promise<Response> {
         await next();
         return next();
       }
@@ -58,3 +57,4 @@ describe("middleware chain", () => {
       applyMiddleware([DoubleNext], req, async () => new Response("ok"))
     ).rejects.toThrow("next() called multiple times");
   });
+});

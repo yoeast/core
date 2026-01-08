@@ -5,8 +5,8 @@
 import { Command } from "../command";
 
 export default class ListCommand extends Command {
-  static signature = "list";
-  static description = "List all available commands";
+  static override signature = "list";
+  static override description = "List all available commands";
 
   async handle(): Promise<number> {
     // The runner handles this specially, but we need the class

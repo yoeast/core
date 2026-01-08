@@ -39,3 +39,6 @@ storage/logs/*
 storage/views/*
 storage/data/*
 !storage/**/.gitkeep
+
+# vscode
+.vscode/.server-controller-port.log

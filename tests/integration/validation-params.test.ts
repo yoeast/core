@@ -18,7 +18,7 @@ describe("validation params/query integration", () => {
     try {
       const res = await fetch(`${server.baseUrl}/validate-params/abc?tag=ok`);
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as { message: string };
       expect(body.message).toBe("Invalid id");
     } finally {
       await server.stop();
@@ -30,7 +30,7 @@ describe("validation params/query integration", () => {
     try {
       const res = await fetch(`${server.baseUrl}/validate-params/42`);
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as { message: string };
       expect(body.message).toBe("Missing tag");
     } finally {
       await server.stop();

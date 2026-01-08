@@ -7,8 +7,8 @@ import { hasService, service } from "../../service";
 import type DatabaseService from "@app/services/database";
 
 export default class DbQueryCommand extends Command {
-  static signature = "db:query {collection} {--filter=} {--limit=10} {--fields=} {--sort=}";
-  static description = "Query a collection and display results";
+  static override signature = "db:query {collection} {--filter=} {--limit=10} {--fields=} {--sort=}";
+  static override description = "Query a collection and display results";
 
   async handle(): Promise<number> {
     if (!hasService("database")) {
@@ -16,12 +16,12 @@ export default class DbQueryCommand extends Command {
       return 1;
     }
 
-    const collection = this.argument<string>("collection");
-    const filterStr = this.option<string>("filter");
-    const limitStr = this.option<string>("limit");
+    const collection = this.argument("collection", "") as string;
+    const filterStr = this.option("filter", "") as string;
+    const limitStr = this.option("limit", "10") as string;
     const limit = limitStr ? parseInt(limitStr, 10) : 10;
-    const fieldsStr = this.option<string>("fields");
-    const sortStr = this.option<string>("sort");
+    const fieldsStr = this.option("fields", "") as string;
+    const sortStr = this.option("sort", "") as string;
 
     if (!collection) {
       this.io.error("Collection name is required");
@@ -29,7 +29,7 @@ export default class DbQueryCommand extends Command {
     }
 
     const db = service<DatabaseService>("database");
-    const col = db.connection.connection.db.collection(collection);
+    const col = db.connection.connection.db!.collection(collection);
 
     // Parse filter JSON
     let filter = {};

@@ -69,4 +69,7 @@ export function register(hbs: typeof Handlebars): void {
 
   // Current year (useful for copyright)
   hbs.registerHelper("year", () => new Date().getFullYear());
+
+  // Current timestamp
+  hbs.registerHelper("now", () => new Date().toISOString());
 }

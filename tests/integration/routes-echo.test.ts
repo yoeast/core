@@ -20,7 +20,7 @@ describe("echo routes integration", () => {
         headers: { "x-test": "lowercase" },
       });
       expect(res.status).toBe(200);
-      const body = await res.json();
+      const body = (await res.json()) as { header: string; all: Record<string, string> };
       expect(body.header).toBe("lowercase");
       expect(body.all["x-test"]).toBe("lowercase");
     } finally {
@@ -53,7 +53,7 @@ describe("echo routes integration", () => {
         body: large,
       });
       expect(res.status).toBe(200);
-      const body = await res.json();
+      const body = (await res.json()) as { text: string };
       expect(body.text.length).toBe(100_000);
     } finally {
       await server.stop();
@@ -69,7 +69,7 @@ describe("echo routes integration", () => {
         body: "",
       });
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as { status: number; message: string };
       expect(body.status).toBe(400);
       expect(body.message).toContain("Invalid JSON");
     } finally {
@@ -101,7 +101,7 @@ describe("echo routes integration", () => {
         body: "{not-json}",
       });
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as { status: number; error: string; message: string };
       expect(body.status).toBe(400);
       expect(body.error).toBe("HttpError");
       expect(body.message).toContain("Invalid JSON");
