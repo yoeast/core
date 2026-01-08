@@ -56,33 +56,27 @@ jobs:
           done
 
       - name: Run tests with coverage
-        run: bun test --coverage --coverage-reporter=lcov
+        shell: bash
+        run: |
+          set -euo pipefail
+          bun test --coverage --coverage-reporter=lcov | tee bun-test-output.txt
 
       - name: Coverage summary
         if: always()
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -f coverage/lcov.info ]]; then
-            total=$(awk -F: '/^DA:/{t+=1} END{print t+0}' coverage/lcov.info)
-            hit=$(awk -F: '/^DA:/{if($2>0)h+=1} END{print h+0}' coverage/lcov.info)
-            pct=0
-            if [[ "$total" -gt 0 ]]; then
-              pct=$(awk -v h="$hit" -v t="$total" 'BEGIN{printf "%.2f", (h/t)*100}')
+          {
+            echo "## Bun Test Output"
+            echo ""
+            echo '```'
+            if [[ -f bun-test-output.txt ]]; then
+              cat bun-test-output.txt
+            else
+              echo "bun-test-output.txt not found"
             fi
-            {
-              echo "## Test Coverage"
-              echo ""
-              echo "- Lines covered: ${hit}/${total}"
-              echo "- Line coverage: ${pct}%"
-            } >> "$GITHUB_STEP_SUMMARY"
-          else
-            {
-              echo "## Test Coverage"
-              echo ""
-              echo "- coverage/lcov.info not found"
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
