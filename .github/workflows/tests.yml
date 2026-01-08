@@ -57,23 +57,24 @@ jobs:
 
       - name: Run tests
         shell: bash
+        env:
+          NO_COLOR: "1"
         run: |
           set -euo pipefail
-          bun test | tee bun-test-output.txt
+          bun test 2>&1 | tee bun-test-output.txt
 
-      - name: Coverage summary
+      - name: Test summary
         if: always()
         shell: bash
         run: |
           set -euo pipefail
           {
-            echo "## Bun Test Output"
+            echo "## Test Results"
             echo ""
-            echo '```'
             if [[ -f bun-test-output.txt ]]; then
-              cat bun-test-output.txt
+              # Extract just the summary line (last few lines)
+              tail -5 bun-test-output.txt | grep -E "^\s*[0-9]+ pass|^Ran [0-9]+ tests" || true
             else
-              echo "bun-test-output.txt not found"
+              echo "No test output found"
             fi
-            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
