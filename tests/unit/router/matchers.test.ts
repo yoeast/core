@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { compileRoutePattern, matchRoute } from "@core/router";
-import type { RouteDefinition } from "@core/types";
+import { compileRoutePattern, matchRoute } from "@yoeast/core/router";
+import type { RouteDefinition } from "@yoeast/core/types";
 
 const numberMatcher = (value: string) => /^\d+$/.test(value);
 

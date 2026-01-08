@@ -5,7 +5,7 @@
 ## TL;DR
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class MyController extends Controller {
   async before(req: Request) {
@@ -131,7 +131,7 @@ Create a base controller for shared logic:
 
 ```ts
 // app/controllers/base.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 import type { User } from "@app/models/User";
 
 export abstract class AuthenticatedController extends Controller {

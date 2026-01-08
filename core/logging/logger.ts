@@ -3,7 +3,7 @@
  * 
  * @example Basic usage:
  * ```ts
- * import { log } from "@core/logging";
+ * import { log } from "@yoeast/core/logging";
  * 
  * log.info("User logged in", { userId: 123 });
  * log.warn("Rate limit approaching");
@@ -13,7 +13,7 @@
  * 
  * @example Custom configuration:
  * ```ts
- * import { Logger, StdoutDriver, FileDriver } from "@core/logging";
+ * import { Logger, StdoutDriver, FileDriver } from "@yoeast/core/logging";
  * 
  * const logger = new Logger({
  *   level: "debug",

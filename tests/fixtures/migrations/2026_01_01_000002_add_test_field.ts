@@ -2,7 +2,7 @@
  * Test migration - adds a field to documents.
  */
 import type { Db } from "mongodb";
-import { Migration } from "@core";
+import { Migration } from "@yoeast/core";
 
 export default class AddTestField extends Migration {
   async up(db: Db): Promise<void> {

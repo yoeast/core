@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 /**
  * Scaffolding CLI for creating a new Core project.
- * Usage: bunx @yourname/core init [project-name]
+ * Usage: bunx @yoeast/core init [project-name]
  */
 
 import { mkdir, writeFile, access } from "node:fs/promises";
 import path from "node:path";
 
 const TEMPLATES: Record<string, string> = {
-  "index.ts": `import { startServer } from "@core";
+  "index.ts": `import { startServer } from "@yoeast/core";
 
 await startServer();
 `,
@@ -32,8 +32,8 @@ await startServer();
     "allowJs": true,
     "types": ["bun-types"],
     "paths": {
-      "@core": ["./node_modules/@yourname/core/index.ts"],
-      "@core/*": ["./node_modules/@yourname/core/*"]
+      "@yoeast/core": ["./core/index.ts"],
+      "@yoeast/core/*": ["./core/*"]
     }
   }
 }
@@ -46,12 +46,11 @@ peer = false
   ".env": `PORT=3000
 `,
 
-  ".gitignore": `node_modules/
-.env
+  ".gitignore": `.env
 *.log
 `,
 
-  "app/routes/index.get.ts": `import { Controller } from "@core";
+  "app/routes/index.get.ts": `import { Controller } from "@yoeast/core";
 
 export default class IndexGet extends Controller {
   protected async handle(): Promise<Response> {
@@ -60,7 +59,7 @@ export default class IndexGet extends Controller {
 }
 `,
 
-  "app/routes/health.get.ts": `import { Controller } from "@core";
+  "app/routes/health.get.ts": `import { Controller } from "@yoeast/core";
 
 export default class HealthGet extends Controller {
   protected async handle(): Promise<Response> {

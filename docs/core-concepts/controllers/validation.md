@@ -5,7 +5,7 @@
 ## TL;DR
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 import { z } from "zod";
 
 export default class CreateUserController extends Controller {
@@ -47,7 +47,7 @@ export default class CreateUserController extends Controller {
 Define schemas in the `schema` property:
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 import { z } from "zod";
 
 export default class UpdateUserController extends Controller {

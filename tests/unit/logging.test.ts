@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, mock } from "bun:test";
-import { Logger, log, initLogger, getLogger } from "@core/logging";
-import type { LogDriver, LogEntry, LogLevel } from "@core/logging";
+import { Logger, log, initLogger, getLogger } from "@yoeast/core/logging";
+import type { LogDriver, LogEntry, LogLevel } from "@yoeast/core/logging";
 
 // Mock driver for testing
 class MockDriver implements LogDriver {

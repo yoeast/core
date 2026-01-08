@@ -7,11 +7,11 @@ import {
   generateOpenApiSpec,
   clearOpenApiCache,
   buildRequestBodySchema,
-} from "@core/api/openapi";
-import { ApiController } from "@core/api-controller";
-import { Controller } from "@core/controller";
-import type { RouteDefinition } from "@core/types";
-import { initConfig, isConfigInitialized } from "@core/config";
+} from "@yoeast/core/api/openapi";
+import { ApiController } from "@yoeast/core/api-controller";
+import { Controller } from "@yoeast/core/controller";
+import type { RouteDefinition } from "@yoeast/core/types";
+import { initConfig, isConfigInitialized } from "@yoeast/core/config";
 
 // Initialize config if not already done
 beforeAll(async () => {

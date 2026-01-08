@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildRoutePath, extractMethodFromFilename } from "@core/router";
+import { buildRoutePath, extractMethodFromFilename } from "@yoeast/core/router";
 import path from "node:path";
 
 describe("router path parsing", () => {

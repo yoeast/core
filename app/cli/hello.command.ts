@@ -1,4 +1,4 @@
-import { Command } from "@core";
+import { Command } from "@yoeast/core";
 
 export default class HelloCommand extends Command {
   static override signature = `

@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from "bun:test";
-import { LruCacheStore } from "@core/cache/drivers/lru";
+import { LruCacheStore } from "@yoeast/core/cache/drivers/lru";
 
 describe("LRU cache store", () => {
   let cache: LruCacheStore;

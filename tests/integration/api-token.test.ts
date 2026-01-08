@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeEach } from "bun:test";
 import { startTestServer } from "../helpers/start-test-server";
-import { getTokenStore, setTokenStore, DefaultTokenStore } from "@core";
+import { getTokenStore, setTokenStore, DefaultTokenStore } from "@yoeast/core";
 
 describe("API token authentication", () => {
   // Reset token store before each test

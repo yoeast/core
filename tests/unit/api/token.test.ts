@@ -8,7 +8,7 @@ import {
   DefaultTokenStore,
   setTokenStore,
   getTokenStore,
-} from "@core/api";
+} from "@yoeast/core/api";
 
 describe("extractToken", () => {
   test("extracts from X-API-Token header", () => {

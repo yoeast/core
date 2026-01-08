@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
-import { parseArgs } from "@core/cli/parser";
-import { parseSignature } from "@core/cli/signature";
+import { parseArgs } from "@yoeast/core/cli/parser";
+import { parseSignature } from "@yoeast/core/cli/signature";
 
 describe("CLI argument parser", () => {
   describe("positional arguments", () => {

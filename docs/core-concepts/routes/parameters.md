@@ -6,7 +6,7 @@
 
 ```ts
 // app/routes/users/[id]/posts/[postId].get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class GetPostController extends Controller {
   async handle() {

@@ -6,7 +6,7 @@
 
 ```ts
 // app/routes/events.sse.ts
-import { SseController } from "@core";
+import { SseController } from "@yoeast/core";
 
 export default class EventsController extends SseController {
   async *handle() {
@@ -55,7 +55,7 @@ Create a `.sse.ts` file with an async generator:
 
 ```ts
 // app/routes/time.sse.ts
-import { SseController, type SseEvent } from "@core";
+import { SseController, type SseEvent } from "@yoeast/core";
 
 export default class TimeController extends SseController {
   async *handle(): AsyncGenerator<SseEvent> {
@@ -114,7 +114,7 @@ Stream database changes:
 
 ```ts
 // app/routes/notifications.sse.ts
-import { SseController, type SseEvent } from "@core";
+import { SseController, type SseEvent } from "@yoeast/core";
 import { Notification } from "@app/models/Notification";
 
 export default class NotificationsController extends SseController {

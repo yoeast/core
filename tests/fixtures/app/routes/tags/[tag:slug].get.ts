@@ -1,4 +1,4 @@
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class TagSlugGet extends Controller {
   protected async handle(): Promise<Response> {

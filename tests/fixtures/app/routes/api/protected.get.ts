@@ -2,7 +2,7 @@
  * Protected API endpoint - requires valid API token.
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 
 export default class ProtectedApiController extends ApiController {
   protected override apiProtected = true;

@@ -5,7 +5,7 @@
 ## TL;DR
 
 ```ts
-import { env, config } from "@core";
+import { env, config } from "@yoeast/core";
 
 // Environment variables
 const port = env("PORT", 3000);
@@ -51,7 +51,7 @@ const dbUri = config("database.uri");
 Bun automatically loads `.env` files. Access variables with `env()`:
 
 ```ts
-import { env } from "@core";
+import { env } from "@yoeast/core";
 
 // Get string value
 const apiKey = env("API_KEY");
@@ -233,7 +233,7 @@ export default {
 ### Using Config in Code
 
 ```ts
-import { config } from "@core";
+import { config } from "@yoeast/core";
 
 // In a service
 class EmailService extends Service {

@@ -2,7 +2,7 @@
  * Unprotected API endpoint - no authentication required.
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 
 export default class PublicApiController extends ApiController {
   static override responses = {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { applyMiddleware, Middleware } from "@core/middleware";
+import { applyMiddleware, Middleware } from "@yoeast/core/middleware";
 
 class First extends Middleware {
   override async handle(_req: Request, next: () => Promise<Response>): Promise<Response> {

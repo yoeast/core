@@ -126,7 +126,7 @@ describe("Database tests", () => {
 
 ```ts
 import { test, expect, beforeAll, afterAll } from "bun:test";
-import { startServer } from "@core";
+import { startServer } from "@yoeast/core";
 
 let server: ReturnType<typeof startServer>;
 let baseUrl: string;
@@ -305,7 +305,7 @@ Create test routes in `tests/fixtures/app/routes/`:
 
 ```ts
 // tests/fixtures/app/routes/test-endpoint.get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class TestController extends Controller {
   async handle() {
@@ -317,7 +317,7 @@ export default class TestController extends Controller {
 Use in tests by starting server with fixtures path:
 
 ```ts
-import { startServer } from "@core";
+import { startServer } from "@yoeast/core";
 import { join } from "path";
 
 beforeAll(async () => {

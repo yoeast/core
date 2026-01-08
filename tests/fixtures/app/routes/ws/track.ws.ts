@@ -1,4 +1,4 @@
-import { WebSocketController } from "@core";
+import { WebSocketController } from "@yoeast/core";
 import { incrementClose } from "../../utils/ws-state";
 
 export default class TrackWs extends WebSocketController {

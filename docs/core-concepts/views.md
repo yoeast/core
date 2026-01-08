@@ -6,7 +6,7 @@
 
 ```ts
 // app/routes/home.get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class HomeController extends Controller {
   async handle() {

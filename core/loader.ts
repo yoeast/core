@@ -17,7 +17,7 @@ import type { SseControllerConstructor } from "./sse";
 
 const ROUTE_EXTENSIONS = new Set([".ts", ".js", ".tsx", ".jsx"]);
 
-// Get the directory where core is installed (works whether local or in node_modules)
+// Get the directory where core is located (works for local or packaged installs)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CORE_DIR = __dirname; // This file is in core/, so __dirname IS core/
 

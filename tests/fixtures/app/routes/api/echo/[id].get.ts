@@ -2,7 +2,7 @@
  * Echo endpoint - returns input for testing.
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 
 export default class EchoInputController extends ApiController {
   static override responses = {

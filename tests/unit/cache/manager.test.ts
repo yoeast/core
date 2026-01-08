@@ -2,7 +2,7 @@
  * Tests for cache manager (remember pattern, tags, stats).
  */
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { LruCacheStore } from "@core/cache/drivers/lru";
+import { LruCacheStore } from "@yoeast/core/cache/drivers/lru";
 
 // We test the CacheManager's core logic by creating a minimal version
 // that uses the LRU driver directly, avoiding config dependencies

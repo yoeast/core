@@ -1,4 +1,4 @@
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class HintsTestController extends Controller {
   async handle() {

@@ -16,7 +16,7 @@ app/routes/
 
 ```ts
 // app/routes/users/[id].get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class GetUserController extends Controller {
   async handle() {
@@ -57,7 +57,7 @@ Create a file in `app/routes/` with the method extension:
 
 ```ts
 // app/routes/hello.get.ts → GET /hello
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class HelloController extends Controller {
   async handle() {

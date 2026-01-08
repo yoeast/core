@@ -39,7 +39,7 @@ storage/logs/
 
 Configure log file location:
 ```ts
-import { Logger, FileDriver } from "@core";
+import { Logger, FileDriver } from "@yoeast/core";
 
 const logger = new Logger({
   level: "info",

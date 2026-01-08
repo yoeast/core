@@ -4,7 +4,7 @@
  * POST /api/users
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 export default class CreateUserController extends ApiController {

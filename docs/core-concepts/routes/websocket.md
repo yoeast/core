@@ -6,7 +6,7 @@
 
 ```ts
 // app/routes/chat.ws.ts
-import { WebSocketController } from "@core";
+import { WebSocketController } from "@yoeast/core";
 import type { ServerWebSocket } from "bun";
 
 export default class ChatController extends WebSocketController {
@@ -62,7 +62,7 @@ Create a `.ws.ts` file:
 
 ```ts
 // app/routes/echo.ws.ts
-import { WebSocketController } from "@core";
+import { WebSocketController } from "@yoeast/core";
 import type { ServerWebSocket } from "bun";
 
 export default class EchoController extends WebSocketController {
@@ -131,7 +131,7 @@ Use URL parameters for room names:
 
 ```ts
 // app/routes/rooms/[room].ws.ts
-import { WebSocketController } from "@core";
+import { WebSocketController } from "@yoeast/core";
 
 export default class RoomController extends WebSocketController {
   open(ws: ServerWebSocket<unknown>) {

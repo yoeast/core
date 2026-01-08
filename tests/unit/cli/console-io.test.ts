@@ -3,7 +3,7 @@
  * Tests the formatting utilities without requiring actual TTY.
  */
 import { describe, test, expect } from "bun:test";
-import { COLORS, color, ConsoleIO } from "@core/cli/console-io";
+import { COLORS, color, ConsoleIO } from "@yoeast/core/cli/console-io";
 
 describe("console-io", () => {
   describe("COLORS constants", () => {

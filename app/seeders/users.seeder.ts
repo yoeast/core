@@ -3,7 +3,7 @@
  */
 
 import type { Db } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 
 export default class UsersSeeder extends Seeder {
   async run(db: Db): Promise<void> {

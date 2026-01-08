@@ -6,7 +6,7 @@
 
 ```ts
 // app/routes/api/data.get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class DataController extends Controller {
   protected cors = true; // Enable CORS with defaults
@@ -159,7 +159,7 @@ export default class MyController extends Controller {
 ### Functions (Advanced)
 
 ```ts
-import { applyCorsHeaders, createPreflightResponse, resolveCorsOptions } from "@core";
+import { applyCorsHeaders, createPreflightResponse, resolveCorsOptions } from "@yoeast/core";
 
 // Apply CORS headers to an existing response
 const response = applyCorsHeaders(request, existingResponse, corsConfig);

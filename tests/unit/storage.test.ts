@@ -19,13 +19,13 @@ describe("storage helpers", () => {
 
   beforeAll(async () => {
     // Ensure config is initialized (may already be from other tests)
-    const configModule = await import("@core/config");
+    const configModule = await import("@yoeast/core/config");
     if (!configModule.isConfigInitialized()) {
       await configModule.initConfig(testRoot);
     }
     
     // Import storage module
-    const storage = await import("@core/storage");
+    const storage = await import("@yoeast/core/storage");
     storagePath = storage.storagePath;
     cachePath = storage.cachePath;
     logsPath = storage.logsPath;

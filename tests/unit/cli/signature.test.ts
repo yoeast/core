@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { parseSignature, generateHelp } from "@core/cli/signature";
+import { parseSignature, generateHelp } from "@yoeast/core/cli/signature";
 
 describe("CLI signature parsing", () => {
   describe("parseSignature", () => {

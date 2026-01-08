@@ -5,7 +5,7 @@
 ## TL;DR
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class DataController extends Controller {
   protected responseCacheTtl = 300; // Cache for 5 minutes

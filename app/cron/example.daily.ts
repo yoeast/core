@@ -1,4 +1,4 @@
-import { CronJob } from "@core";
+import { CronJob } from "@yoeast/core";
 
 /**
  * Example cron job - runs daily at 3am.

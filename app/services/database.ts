@@ -4,8 +4,8 @@
 
 import mongoose from "mongoose";
 import type { Db } from "mongodb";
-import { Service } from "@core";
-import { config } from "@core/config";
+import { Service } from "@yoeast/core";
+import { config } from "@yoeast/core/config";
 
 export interface DatabaseInfo {
   connected: boolean;

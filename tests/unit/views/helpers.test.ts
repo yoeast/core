@@ -6,16 +6,16 @@ import { describe, test, expect, beforeAll } from "bun:test";
 import Handlebars from "handlebars";
 
 // Import all helper plugins
-import { register as registerString } from "@core/views/plugins/string";
-import { register as registerMath } from "@core/views/plugins/math";
-import { register as registerComparison } from "@core/views/plugins/comparison";
-import { register as registerArray } from "@core/views/plugins/array";
-import { register as registerUtil } from "@core/views/plugins/util";
-import { register as registerNumber } from "@core/views/plugins/number";
-import { register as registerDate } from "@core/views/plugins/date";
-import { register as registerControl } from "@core/views/plugins/control";
-import { register as registerJson } from "@core/views/plugins/json";
-import { register as registerDebug } from "@core/views/plugins/debug";
+import { register as registerString } from "@yoeast/core/views/plugins/string";
+import { register as registerMath } from "@yoeast/core/views/plugins/math";
+import { register as registerComparison } from "@yoeast/core/views/plugins/comparison";
+import { register as registerArray } from "@yoeast/core/views/plugins/array";
+import { register as registerUtil } from "@yoeast/core/views/plugins/util";
+import { register as registerNumber } from "@yoeast/core/views/plugins/number";
+import { register as registerDate } from "@yoeast/core/views/plugins/date";
+import { register as registerControl } from "@yoeast/core/views/plugins/control";
+import { register as registerJson } from "@yoeast/core/views/plugins/json";
+import { register as registerDebug } from "@yoeast/core/views/plugins/debug";
 
 let hbs: typeof Handlebars;
 

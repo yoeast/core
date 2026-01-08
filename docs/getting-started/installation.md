@@ -81,7 +81,7 @@ Visit http://localhost:3000 to see your app.
 Create `app/routes/hello.get.ts`:
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class HelloController extends Controller {
   async handle() {

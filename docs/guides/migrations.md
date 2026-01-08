@@ -6,7 +6,7 @@
 
 ```ts
 // app/migrations/2024_01_15_000001_create_users_indexes.ts
-import { Migration, type Db } from "@core";
+import { Migration, type Db } from "@yoeast/core";
 
 export default class CreateUsersIndexes extends Migration {
   async up(db: Db) {
@@ -64,7 +64,7 @@ Create a file in `app/migrations/` with timestamp prefix:
 ```ts
 // app/migrations/2024_01_15_000001_create_posts_indexes.ts
 import type { Db } from "mongodb";
-import { Migration } from "@core";
+import { Migration } from "@yoeast/core";
 
 export default class CreatePostsIndexes extends Migration {
   async up(db: Db): Promise<void> {

@@ -3,7 +3,7 @@
  * Requires Redis to be running on localhost:6379
  */
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from "bun:test";
-import { RedisCacheStore } from "@core/cache/drivers/redis";
+import { RedisCacheStore } from "@yoeast/core/cache/drivers/redis";
 
 // Use unique prefix for each test run to avoid conflicts
 const testPrefix = `test:${Date.now()}:`;

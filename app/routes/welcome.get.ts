@@ -1,4 +1,4 @@
-import { Controller, cache, hasService, service } from "@core";
+import { Controller, cache, hasService, service } from "@yoeast/core";
 import type DatabaseService from "@app/services/database";
 
 export default class WelcomeGet extends Controller {

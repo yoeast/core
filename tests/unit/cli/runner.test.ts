@@ -2,8 +2,8 @@
  * Tests for CLI Runner.
  */
 import { describe, test, expect, beforeEach } from "bun:test";
-import { Runner } from "@core/cli/runner";
-import { Command } from "@core/cli/command";
+import { Runner } from "@yoeast/core/cli/runner";
+import { Command } from "@yoeast/core/cli/command";
 
 // Test commands
 class HelloCommand extends Command {

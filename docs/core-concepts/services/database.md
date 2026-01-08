@@ -6,7 +6,7 @@
 
 ```ts
 // app/services/database.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 import mongoose from "mongoose";
 
 export default class DatabaseService extends Service {
@@ -42,7 +42,7 @@ Create the database service:
 
 ```ts
 // app/services/database.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 import mongoose from "mongoose";
 
 export default class DatabaseService extends Service {
@@ -121,7 +121,7 @@ export const User = model<IUser>("User", userSchema);
 
 ```ts
 // app/routes/users.get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 export default class ListUsersController extends Controller {
@@ -195,7 +195,7 @@ Connect to multiple databases:
 
 ```ts
 // app/services/databases.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 import mongoose from "mongoose";
 
 export default class DatabasesService extends Service {

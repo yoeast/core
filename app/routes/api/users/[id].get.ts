@@ -4,7 +4,7 @@
  * GET /api/users/:id
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 export default class GetUserController extends ApiController {

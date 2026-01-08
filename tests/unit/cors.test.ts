@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
-import { Controller, applyCorsHeaders, createPreflightResponse } from "@core";
-import type { CorsOptions, CorsConfig } from "@core";
+import { Controller, applyCorsHeaders, createPreflightResponse } from "@yoeast/core";
+import type { CorsOptions, CorsConfig } from "@yoeast/core";
 
 // Helper to create a controller with CORS config
 function createTestController(corsConfig: CorsConfig) {

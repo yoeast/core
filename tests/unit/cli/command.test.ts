@@ -2,7 +2,7 @@
  * Tests for CLI Command base class.
  */
 import { describe, test, expect, beforeEach } from "bun:test";
-import { Command } from "@core/cli/command";
+import { Command } from "@yoeast/core/cli/command";
 
 // Test command implementation
 class TestCommand extends Command {

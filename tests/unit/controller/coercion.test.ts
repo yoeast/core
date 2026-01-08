@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Controller } from "@core/controller";
+import { Controller } from "@yoeast/core/controller";
 
 class CoerceController extends Controller {
   protected async handle(): Promise<Response> {

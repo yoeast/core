@@ -1,4 +1,4 @@
-import { Controller, HttpError } from "@core";
+import { Controller, HttpError } from "@yoeast/core";
 
 export default class EchoJsonPost extends Controller {
   protected async handle(): Promise<Response> {

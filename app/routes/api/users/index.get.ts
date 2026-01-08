@@ -4,7 +4,7 @@
  * GET /api/users
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 const UserSchema = z.object({

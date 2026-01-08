@@ -6,7 +6,7 @@
 
 ```ts
 // app/routes/index.get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class HomeController extends Controller {
   async handle() {
@@ -234,7 +234,7 @@ interface HintsConfig {
 ### Utility Functions
 
 ```ts
-import { buildLinkHeader, buildLinkTags, configToHints } from "@core";
+import { buildLinkHeader, buildLinkTags, configToHints } from "@yoeast/core";
 
 // Build HTTP Link header from hints
 const header = buildLinkHeader(hints);

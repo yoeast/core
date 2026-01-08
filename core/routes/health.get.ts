@@ -6,7 +6,7 @@
  * Returns server health status including uptime, cache stats, and metrics.
  * Apps can override this by creating their own app/routes/health.get.ts
  */
-import { Controller, getWsRoutes, cache } from "@core";
+import { Controller, getWsRoutes, cache } from "@yoeast/core";
 
 export default class HealthController extends Controller {
   protected async handle(): Promise<Response> {

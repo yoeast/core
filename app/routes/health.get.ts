@@ -2,7 +2,7 @@
  * Extended health check with database info.
  * Overrides core's /health route.
  */
-import { Controller, getWsRoutes, hasService, service, cache } from "@core";
+import { Controller, getWsRoutes, hasService, service, cache } from "@yoeast/core";
 import type DatabaseService from "@app/services/database";
 
 export default class HealthGet extends Controller {

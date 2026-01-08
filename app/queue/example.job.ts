@@ -1,4 +1,4 @@
-import { QueueJob } from "@core";
+import { QueueJob } from "@yoeast/core";
 
 /**
  * Example queue job.

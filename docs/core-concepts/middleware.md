@@ -6,7 +6,7 @@
 
 ```ts
 // app/middleware/logger.ts
-import { Middleware } from "@core";
+import { Middleware } from "@yoeast/core";
 
 export default class LoggerMiddleware extends Middleware {
   async handle(req: Request, next: () => Promise<Response>) {
@@ -40,7 +40,7 @@ Create a class extending `Middleware`:
 
 ```ts
 // app/middleware/auth.ts
-import { Middleware } from "@core";
+import { Middleware } from "@yoeast/core";
 
 export default class AuthMiddleware extends Middleware {
   async handle(req: Request, next: () => Promise<Response>) {

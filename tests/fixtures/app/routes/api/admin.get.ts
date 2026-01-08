@@ -2,7 +2,7 @@
  * Admin-only API endpoint - requires admin scope.
  */
 import { z } from "zod";
-import { ApiController, type ApiScope } from "@core";
+import { ApiController, type ApiScope } from "@yoeast/core";
 
 export default class AdminApiController extends ApiController {
   protected override apiProtected = true;

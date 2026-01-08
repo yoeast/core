@@ -2,7 +2,7 @@
  * Tests for ApiController input validation.
  */
 import { describe, test, expect, afterAll } from "bun:test";
-import { startServer, stopServer } from "@core";
+import { startServer, stopServer } from "@yoeast/core";
 
 const TEST_PORT = 3098;
 

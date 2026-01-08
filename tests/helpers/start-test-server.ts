@@ -1,5 +1,5 @@
 import path from "node:path";
-import { startServer } from "@core/server";
+import { startServer } from "@yoeast/core/server";
 
 export interface TestServer {
   baseUrl: string;

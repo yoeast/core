@@ -1,4 +1,4 @@
-import { WebSocketController } from "@core";
+import { WebSocketController } from "@yoeast/core";
 import type { ServerWebSocket } from "bun";
 
 export default class ChatWs extends WebSocketController {

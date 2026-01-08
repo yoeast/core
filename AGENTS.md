@@ -53,8 +53,8 @@ tests/                  # Test files
 
 ## Path Aliases
 
-- `@core` - Framework exports (`import { Controller } from "@core"`)
-- `@core/*` - Direct framework file access (`import { config } from "@core/config"`)
+- `@yoeast/core` - Framework exports (`import { Controller } from "@yoeast/core"`)
+- `@yoeast/core/*` - Direct framework file access (`import { config } from "@yoeast/core/config"`)
 - `@app` - App directory (`import { User } from "@app/models/User"`)
 - `@app/*` - Direct app file access
 
@@ -76,7 +76,7 @@ app/routes/
 ### Route File Template
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class MyController extends Controller {
   async handle() {
@@ -109,7 +109,7 @@ export default class MyController extends Controller {
 Controllers extend `Controller` and implement `handle()`:
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class UsersController extends Controller {
   // Optional: validation schema
@@ -148,8 +148,8 @@ export default class UsersController extends Controller {
 CORS is configured per-controller using the `cors` property:
 
 ```ts
-import { Controller } from "@core";
-import type { CorsOptions } from "@core";
+import { Controller } from "@yoeast/core";
+import type { CorsOptions } from "@yoeast/core";
 
 export default class ApiController extends Controller {
   // Enable CORS with defaults (allows all origins)
@@ -298,7 +298,7 @@ Services are singletons with lifecycle hooks, loaded from `app/services/`:
 
 ```ts
 // app/services/database.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 
 export default class DatabaseService extends Service {
   connection!: SomeClient;
@@ -313,7 +313,7 @@ export default class DatabaseService extends Service {
 }
 
 // Usage anywhere:
-import { service } from "@core";
+import { service } from "@yoeast/core";
 const db = service<DatabaseService>("database");
 ```
 
@@ -352,7 +352,7 @@ For API endpoints, use `ApiController` with Zod schemas for input/output validat
 ```ts
 // app/routes/api/users/[id].get.ts
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 export default class GetUserController extends ApiController {
@@ -420,7 +420,7 @@ Database schema migrations in `app/migrations/`:
 ```ts
 // app/migrations/2026_01_07_000001_create_users_indexes.ts
 import type { Db } from "mongodb";
-import { Migration } from "@core";
+import { Migration } from "@yoeast/core";
 
 export default class CreateUsersIndexes extends Migration {
   async up(db: Db): Promise<void> {
@@ -448,7 +448,7 @@ Database seeders in `app/seeders/`:
 ```ts
 // app/seeders/users.seeder.ts
 import type { Db } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 
 export default class UsersSeeder extends Seeder {
   async run(db: Db): Promise<void> {
@@ -471,7 +471,7 @@ Commands live in `app/cli/` or `core/cli/commands/`:
 
 ```ts
 // app/cli/greet.command.ts
-import { Command } from "@core";
+import { Command } from "@yoeast/core";
 
 export default class GreetCommand extends Command {
   static signature = "greet {name} {--loud}";
@@ -522,7 +522,7 @@ bun cli skill:run <name>   # Run a skill
 Pluggable logging system with multiple drivers and log levels:
 
 ```ts
-import { log } from "@core";
+import { log } from "@yoeast/core";
 
 // Basic logging
 log.info("User logged in", { userId: 123 });
@@ -545,7 +545,7 @@ log.setLevel("warn");   // Only warn and error
 ### Custom Logger Configuration
 
 ```ts
-import { Logger, StdoutDriver, FileDriver } from "@core";
+import { Logger, StdoutDriver, FileDriver } from "@yoeast/core";
 
 const logger = new Logger({
   level: "debug",
@@ -564,7 +564,7 @@ Create custom log drivers by implementing `LogDriver`:
 
 ```ts
 // app/loggers/slack.ts
-import type { LogDriver, LogEntry } from "@core";
+import type { LogDriver, LogEntry } from "@yoeast/core";
 
 export class SlackDriver implements LogDriver {
   readonly name = "slack";
@@ -637,12 +637,12 @@ Config uses `env()` and `config()`:
 
 ```ts
 // Access environment variables
-import { env } from "@core";
+import { env } from "@yoeast/core";
 const port = env("PORT", 3000);
 const debug = env("DEBUG", false);
 
 // Access config values (dot notation)
-import { config } from "@core";
+import { config } from "@yoeast/core";
 const appName = config("app.name");
 const dbUri = config("database.uri");
 ```
@@ -661,7 +661,7 @@ export default {
 
 ```ts
 // app/middleware/auth.ts
-import { Middleware } from "@core";
+import { Middleware } from "@yoeast/core";
 
 export default class AuthMiddleware extends Middleware {
   async handle(req: Request, next: () => Promise<Response>) {
@@ -678,7 +678,7 @@ export default class AuthMiddleware extends Middleware {
 
 ```ts
 // app/routes/chat.ws.ts
-import { WebSocketController } from "@core";
+import { WebSocketController } from "@yoeast/core";
 
 export default class ChatController extends WebSocketController {
   open(ws: ServerWebSocket) {
@@ -699,7 +699,7 @@ export default class ChatController extends WebSocketController {
 
 ```ts
 // app/routes/events.sse.ts
-import { SseController } from "@core";
+import { SseController } from "@yoeast/core";
 
 export default class EventsController extends SseController {
   async stream() {
@@ -721,7 +721,7 @@ Multi-driver caching with LRU (default) and Redis support. Includes tags for bul
 ### Basic Usage
 
 ```ts
-import { cache } from "@core";
+import { cache } from "@yoeast/core";
 
 // Get/Set values (TTL in seconds)
 await cache.set("key", { data: "value" }, 300);
@@ -742,7 +742,7 @@ await cache.clear(); // Clear all
 Controllers have a built-in `cache` property:
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class UsersController extends Controller {
   async handle() {
@@ -776,7 +776,7 @@ await tagged.flush(); // Delete all entries with "users" tag
 All response methods (`json()`, `text()`, `render()`) support caching with ETags:
 
 ```ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class UsersController extends Controller {
   // Default TTL for all responses (in seconds)
@@ -840,7 +840,7 @@ export default {
 ```ts
 // tests/example.test.ts
 import { test, expect } from "bun:test";
-import { startServer } from "@core";
+import { startServer } from "@yoeast/core";
 
 test("health check", async () => {
   const server = await startServer({ port: 0, silent: true });
@@ -868,7 +868,7 @@ bun run cli.ts serve
 bun test
 
 # Create new project
-bunx @core/cli init my-app
+bunx @yoeast/core/cli init my-app
 ```
 
 ## Skills System

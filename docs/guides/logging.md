@@ -5,7 +5,7 @@
 ## TL;DR
 
 ```ts
-import { log } from "@core";
+import { log } from "@yoeast/core";
 
 log.info("User logged in", { userId: "123" });
 log.error("Payment failed", new Error("declined"), { orderId: "456" });
@@ -43,7 +43,7 @@ log.error(message: string, error?: Error, context?: Record<string, unknown>): vo
 ### Basic Logging
 
 ```ts
-import { log } from "@core";
+import { log } from "@yoeast/core";
 
 log.debug("Verbose debugging info");
 log.info("Server started", { port: 3000 });
@@ -79,7 +79,7 @@ log.setLevel("debug"); // All logs
 ### Configure in Code
 
 ```ts
-import { initLogger, StdoutDriver, FileDriver } from "@core";
+import { initLogger, StdoutDriver, FileDriver } from "@yoeast/core";
 
 initLogger({
   level: "debug",
@@ -95,7 +95,7 @@ initLogger({
 The FileDriver writes plain text logs with timestamps:
 
 ```ts
-import { Logger, FileDriver } from "@core";
+import { Logger, FileDriver } from "@yoeast/core";
 
 const logger = new Logger({
   level: "info",
@@ -118,7 +118,7 @@ Error: Connection refused
 ### Custom Logger Instance
 
 ```ts
-import { Logger, StdoutDriver } from "@core";
+import { Logger, StdoutDriver } from "@yoeast/core";
 
 const auditLog = new Logger({
   level: "info",
@@ -184,7 +184,7 @@ new FileDriver({
 ### Custom Driver
 
 ```ts
-import type { LogDriver, LogEntry } from "@core";
+import type { LogDriver, LogEntry } from "@yoeast/core";
 
 class MyDriver implements LogDriver {
   readonly name = "my-driver";

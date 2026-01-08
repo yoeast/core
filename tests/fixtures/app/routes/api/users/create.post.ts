@@ -2,7 +2,7 @@
  * Create user API endpoint - demonstrates input validation.
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 
 export default class CreateUserController extends ApiController {
   static override input = z.object({

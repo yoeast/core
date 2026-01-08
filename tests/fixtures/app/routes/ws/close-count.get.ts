@@ -1,4 +1,4 @@
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 import { getCloseCount, resetClose } from "../../utils/ws-state";
 
 export default class CloseCountGet extends Controller {

@@ -31,7 +31,7 @@ API_TOKEN_HEADER=X-API-Token
 ## Accessing Configuration
 
 ```typescript
-import { env, config } from "@core";
+import { env, config } from "@yoeast/core";
 
 // Environment variables with defaults
 const port = env("PORT", 3000);

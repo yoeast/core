@@ -2,7 +2,7 @@
  * Another test seeder - uses upsert.
  */
 import type { Db } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 
 export default class AnotherSeeder extends Seeder {
   async run(db: Db): Promise<void> {

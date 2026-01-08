@@ -7,7 +7,7 @@
 ```ts
 // app/seeders/users.seeder.ts
 import type { Db } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 
 export default class UsersSeeder extends Seeder {
   async run(db: Db) {
@@ -60,7 +60,7 @@ Create a file in `app/seeders/` with `.seeder.ts` extension:
 ```ts
 // app/seeders/categories.seeder.ts
 import type { Db } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 
 export default class CategoriesSeeder extends Seeder {
   async run(db: Db): Promise<void> {
@@ -126,7 +126,7 @@ Seed related data:
 
 ```ts
 import type { Db, ObjectId } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 
 export default class PostsSeeder extends Seeder {
   async run(db: Db): Promise<void> {
@@ -165,7 +165,7 @@ Use a library like faker for realistic test data:
 
 ```ts
 import type { Db } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 import { faker } from "@faker-js/faker";
 
 export default class UsersSeeder extends Seeder {

@@ -1,4 +1,4 @@
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class CacheTtlGet extends Controller {
   // Cache for 2 seconds

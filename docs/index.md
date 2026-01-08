@@ -46,7 +46,7 @@ my-app/
 Create `app/routes/hello.get.ts`:
 
 ```typescript
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class HelloController extends Controller {
   async handle() {

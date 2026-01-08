@@ -5,7 +5,7 @@
  */
 
 import type { Db } from "mongodb";
-import { Migration } from "@core";
+import { Migration } from "@yoeast/core";
 
 export default class CreateUsersIndexes extends Migration {
   async up(db: Db): Promise<void> {

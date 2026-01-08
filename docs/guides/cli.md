@@ -6,7 +6,7 @@
 
 ```ts
 // app/cli/greet.command.ts
-import { Command } from "@core";
+import { Command } from "@yoeast/core";
 
 export default class GreetCommand extends Command {
   static signature = "greet {name} {--loud}";
@@ -70,7 +70,7 @@ Commands go in `app/cli/` with `.command.ts` extension:
 
 ```ts
 // app/cli/users/create.command.ts
-import { Command } from "@core";
+import { Command } from "@yoeast/core";
 
 export default class CreateUserCommand extends Command {
   static signature = "users:create {email} {--admin}";

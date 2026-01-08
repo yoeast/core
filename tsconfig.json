@@ -9,8 +9,8 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@core": ["./core/index.ts"],
-      "@core/*": ["./core/*"],
+      "@yoeast/core": ["./core/index.ts"],
+      "@yoeast/core/*": ["./core/*"],
       "@app": ["./app"],
       "@app/*": ["./app/*"]
     },

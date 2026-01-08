@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Controller } from "@core/controller";
+import { Controller } from "@yoeast/core/controller";
 
 describe("controller body parsing", () => {
   test("supports safeParse schema", async () => {
@@ -46,7 +46,7 @@ describe("controller body parsing", () => {
       headers: { "Content-Type": "application/json" },
     });
 
-    const { HttpError } = await import("@core/errors");
+    const { HttpError } = await import("@yoeast/core/errors");
     await expect(controller.run(req, {}, new URL(req.url).searchParams)).rejects.toBeInstanceOf(
       HttpError
     );

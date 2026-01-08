@@ -1,4 +1,4 @@
-import { SseController } from "@core";
+import { SseController } from "@yoeast/core";
 
 export default class EventsSse extends SseController {
   protected async *handle() {

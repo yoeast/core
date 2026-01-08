@@ -1,4 +1,4 @@
-import { Middleware, logRequest } from "@core";
+import { Middleware, logRequest } from "@yoeast/core";
 
 export default class LoggingMiddleware extends Middleware {
   override async handle(req: Request, next: () => Promise<Response>): Promise<Response> {

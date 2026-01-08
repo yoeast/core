@@ -2,7 +2,7 @@
  * Resource-scoped API endpoint.
  */
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 
 export default class UsersResourceController extends ApiController {
   protected override apiProtected = true;

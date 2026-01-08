@@ -6,7 +6,7 @@ import {
   configToHints,
   type ResourceHint,
   type HintsConfig,
-} from "@core";
+} from "@yoeast/core";
 
 describe("Resource Hints", () => {
   describe("HintCollector", () => {

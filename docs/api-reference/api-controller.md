@@ -15,7 +15,7 @@ Create an API endpoint by extending `ApiController`:
 ```ts
 // app/routes/api/hello.get.ts
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 
 export default class HelloController extends ApiController {
   static override responses = {
@@ -176,7 +176,7 @@ export default class ProtectedController extends ApiController {
 Require specific scopes for an endpoint:
 
 ```ts
-import type { ApiScope } from "@core";
+import type { ApiScope } from "@yoeast/core";
 
 export default class AdminController extends ApiController {
   protected override apiProtected = true;
@@ -351,7 +351,7 @@ Here's a full CRUD API for users:
 ```ts
 // app/routes/api/users/index.get.ts - List users
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 export default class ListUsersController extends ApiController {
@@ -390,7 +390,7 @@ export default class ListUsersController extends ApiController {
 ```ts
 // app/routes/api/users/[id].get.ts - Get user by ID
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 export default class GetUserController extends ApiController {
@@ -429,7 +429,7 @@ export default class GetUserController extends ApiController {
 ```ts
 // app/routes/api/users/index.post.ts - Create user
 import { z } from "zod";
-import { ApiController } from "@core";
+import { ApiController } from "@yoeast/core";
 import { User } from "@app/models/User";
 
 export default class CreateUserController extends ApiController {
@@ -478,5 +478,5 @@ import type {
   ApiProtectionOptions,
   ApiRequestContext,
   ValidationErrorDetail,
-} from "@core";
+} from "@yoeast/core";
 ```

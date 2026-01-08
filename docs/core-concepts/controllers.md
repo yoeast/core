@@ -6,7 +6,7 @@
 
 ```ts
 // app/routes/users.get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class UsersController extends Controller {
   async handle() {
@@ -64,7 +64,7 @@ Controllers are classes that handle HTTP requests. Each route file exports a def
 
 ```ts
 // app/routes/hello.get.ts
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class HelloController extends Controller {
   async handle() {

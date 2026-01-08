@@ -5,7 +5,7 @@
 ## TL;DR
 
 ```ts
-import { cache } from "@core";
+import { cache } from "@yoeast/core";
 
 // Basic get/set
 await cache.set("key", { data: "value" }, 300);
@@ -52,7 +52,7 @@ const users = await cache.remember("users", 600, async () => {
 ### Basic Operations
 
 ```ts
-import { cache } from "@core";
+import { cache } from "@yoeast/core";
 
 // Store a value (TTL in seconds)
 await cache.set("user:123", { name: "John", email: "john@example.com" }, 300);

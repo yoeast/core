@@ -6,7 +6,7 @@
 
 ```ts
 // app/services/database.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 import mongoose from "mongoose";
 
 export default class DatabaseService extends Service {
@@ -23,7 +23,7 @@ export default class DatabaseService extends Service {
 
 ```ts
 // Usage anywhere
-import { service } from "@core";
+import { service } from "@yoeast/core";
 import type DatabaseService from "@app/services/database";
 
 const db = service<DatabaseService>("database");
@@ -52,7 +52,7 @@ Create a file in `app/services/`:
 
 ```ts
 // app/services/redis.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 import Redis from "ioredis";
 
 export default class RedisService extends Service {
@@ -91,7 +91,7 @@ export default class RedisService extends Service {
 Access services anywhere in your application:
 
 ```ts
-import { service } from "@core";
+import { service } from "@yoeast/core";
 import type RedisService from "@app/services/redis";
 
 // In a controller
@@ -140,7 +140,7 @@ app/services/
 ### Checking Service Availability
 
 ```ts
-import { hasService, getServiceNames } from "@core";
+import { hasService, getServiceNames } from "@yoeast/core";
 
 if (hasService("redis")) {
   const redis = service<RedisService>("redis");
@@ -188,7 +188,7 @@ async shutdown() {
 
 ```ts
 // app/services/email.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 import nodemailer from "nodemailer";
 
 export default class EmailService extends Service {
@@ -227,7 +227,7 @@ export default class EmailService extends Service {
 
 ```ts
 // app/services/stripe.ts
-import { Service } from "@core";
+import { Service } from "@yoeast/core";
 import Stripe from "stripe";
 
 export default class StripeService extends Service {
