@@ -79,7 +79,7 @@ jobs:
             echo "## Coverage"
             echo ""
             echo '```'
-            # Extract the coverage table (starts with File header, ends with dashes)
-            sed -n '/^File /,/^---/p' bun-test-output.txt || echo "No coverage data"
+            # Extract the coverage table (header + separator + data rows)
+            grep -E "^-+\||^File |^All files|^ core/" bun-test-output.txt || echo "No coverage data"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
