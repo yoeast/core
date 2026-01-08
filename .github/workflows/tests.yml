@@ -71,10 +71,15 @@ jobs:
           {
             echo "## Test Results"
             echo ""
-            if [[ -f bun-test-output.txt ]]; then
-              # Extract just the summary line (last few lines)
-              tail -5 bun-test-output.txt | grep -E "^\s*[0-9]+ pass|^Ran [0-9]+ tests" || true
-            else
-              echo "No test output found"
-            fi
+            # Extract pass/fail summary
+            grep -E "^\s*[0-9]+ pass" bun-test-output.txt || true
+            grep -E "^\s*[0-9]+ fail" bun-test-output.txt || true
+            grep -E "^Ran [0-9]+ tests" bun-test-output.txt || true
+            echo ""
+            echo "## Coverage"
+            echo ""
+            echo '```'
+            # Extract the coverage table (starts with File header, ends with dashes)
+            sed -n '/^File /,/^---/p' bun-test-output.txt || echo "No coverage data"
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
