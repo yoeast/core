@@ -22,18 +22,27 @@ export default class DataController extends Controller {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `cors` | `boolean \| CorsOptions` | `false` | Enable CORS on this controller |
-| `origin` | `string \| string[] \| ((origin: string) => boolean)` | `"*"` | Allowed origins |
+| `origin` | `string \| string[] \| ((origin: string) => boolean)` | `APP_URL` | Allowed origins |
 | `methods` | `string[]` | `["GET","HEAD","PUT","PATCH","POST","DELETE"]` | Allowed methods |
-| `allowedHeaders` | `string[]` | `["Content-Type","Authorization","X-Requested-With"]` | Allowed request headers |
+| `allowedHeaders` | `string[]` | `["Content-Type","Authorization","X-Requested-With","X-API-Token"]` | Allowed request headers |
 | `exposedHeaders` | `string[]` | `[]` | Headers exposed to browser |
-| `credentials` | `boolean` | `false` | Allow credentials (cookies) |
+| `credentials` | `boolean` | `true` | Allow credentials (cookies, auth headers) |
 | `maxAge` | `number` | `86400` | Preflight cache duration (seconds) |
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `APP_URL` | `http://localhost:3000` | Your application URL, used as default CORS origin |
+| `CORS_ORIGIN` | `APP_URL` | Override allowed origin(s) |
+| `CORS_CREDENTIALS` | `true` | Allow cookies and auth headers cross-origin |
+| `CORS_MAX_AGE` | `86400` | Preflight cache duration in seconds |
 
 ## Guide
 
 ### Basic CORS
 
-Set `cors = true` to use defaults (allow all origins):
+Set `cors = true` to use defaults (credentials enabled, origin from `APP_URL`):
 
 ```ts
 export default class MyController extends Controller {
@@ -45,7 +54,9 @@ export default class MyController extends Controller {
 }
 ```
 
-### Restrict to Specific Origins
+### Multiple Origins
+
+Allow requests from multiple frontend domains:
 
 ```ts
 export default class MyController extends Controller {
@@ -59,22 +70,24 @@ export default class MyController extends Controller {
 }
 ```
 
-### Allow Credentials
+Or via environment variable:
 
-When your frontend needs to send cookies:
+```bash
+CORS_ORIGIN=https://app.example.com,https://admin.example.com
+```
+
+### Working with Cookies
+
+Credentials (cookies, authorization headers) are enabled by default. Your frontend just needs to include credentials in fetch requests:
 
 ```ts
-export default class MyController extends Controller {
-  protected cors = {
-    origin: "https://app.example.com", // Must be specific origin, not "*"
-    credentials: true,
-  };
-  
-  async handle() {
-    return this.json({ ok: true });
-  }
-}
+// Frontend code
+const response = await fetch("https://api.example.com/user", {
+  credentials: "include", // Required for cookies to be sent
+});
 ```
+
+The server will automatically include the `Access-Control-Allow-Credentials: true` header.
 
 ### Expose Custom Headers
 
@@ -83,7 +96,6 @@ Let browsers access custom response headers:
 ```ts
 export default class MyController extends Controller {
   protected cors = {
-    origin: "*",
     exposedHeaders: ["X-Total-Count", "X-Page-Count"],
   };
   
@@ -101,7 +113,7 @@ Set default CORS options in `app/config/cors.ts`:
 ```ts
 // app/config/cors.ts
 export default {
-  origin: ["https://app.example.com"],
+  origin: ["https://app.example.com", "https://admin.example.com"],
   credentials: true,
   maxAge: 3600,
 };

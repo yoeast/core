@@ -74,11 +74,12 @@ export default {
   },
 
   cors: {
-    origin: env("CORS_ORIGIN", "*"),
+    // Use APP_URL as default origin when credentials enabled, otherwise allow all
+    origin: env("CORS_ORIGIN", env("APP_URL", "http://localhost:3000")),
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "X-API-Token"],
     exposedHeaders: [],
-    credentials: env("CORS_CREDENTIALS", false),
+    credentials: env("CORS_CREDENTIALS", true),
     maxAge: env("CORS_MAX_AGE", 86400), // 24 hours
     preflightContinue: false,
     optionsSuccessStatus: 204,

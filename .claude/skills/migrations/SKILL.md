@@ -53,7 +53,7 @@ Migrations are created in `app/migrations/` with timestamp prefix:
 ```typescript
 // app/migrations/2026_01_07_000001_create_users_indexes.ts
 import type { Db } from "mongodb";
-import { Migration } from "@core";
+import { Migration } from "@yoeast/core";
 
 export default class CreateUsersIndexes extends Migration {
   async up(db: Db): Promise<void> {

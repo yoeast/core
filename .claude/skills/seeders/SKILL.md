@@ -52,7 +52,7 @@ Seeders are created in `app/seeders/` with `.seeder.ts` suffix:
 ```typescript
 // app/seeders/users.seeder.ts
 import type { Db } from "mongodb";
-import { Seeder } from "@core";
+import { Seeder } from "@yoeast/core";
 
 export default class UsersSeeder extends Seeder {
   async run(db: Db): Promise<void> {

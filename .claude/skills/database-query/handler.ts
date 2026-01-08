@@ -4,7 +4,7 @@
  * Execute MongoDB queries against any collection.
  */
 
-import { service } from "@core";
+import { service } from "@yoeast/core";
 import type DatabaseService from "@app/services/database";
 
 interface Input {

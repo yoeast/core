@@ -5,8 +5,8 @@
  */
 
 import path from "node:path";
-import { service, hasService } from "@core";
-import { runSeeder, runAllSeeders, listSeeders } from "@core/database";
+import { service, hasService } from "@yoeast/core";
+import { runSeeder, runAllSeeders, listSeeders } from "@yoeast/core/database";
 import type { Db } from "mongodb";
 
 interface Input {

@@ -24,6 +24,10 @@ MONGODB_URI=mongodb://localhost:27017/myapp
 CACHE_DRIVER=lru
 CACHE_ENABLED=true
 
+# CORS (credentials enabled by default)
+CORS_ORIGIN=http://localhost:3000
+CORS_CREDENTIALS=true
+
 # API
 API_TOKEN_HEADER=X-API-Token
 ```
@@ -90,6 +94,11 @@ Core provides sensible defaults in `core/config/defaults.ts`:
       redis: { host: "localhost", port: 6379 },
     },
   },
+  cors: {
+    origin: "http://localhost:3000", // Uses APP_URL by default
+    credentials: true,               // Cookies/auth enabled by default
+    maxAge: 86400,
+  },
   api: {
     tokenHeader: "X-API-Token",
   },
@@ -120,3 +129,4 @@ const dbConfig = config<DatabaseConfig>("database");
 - [Installation](./installation.md)
 - [Services](../core-concepts/services.md)
 - [Caching](../core-concepts/controllers/caching.md)
+- [CORS](../guides/cors.md)

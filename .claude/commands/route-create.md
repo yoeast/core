@@ -10,7 +10,7 @@ For example, to create `GET /api/posts`:
 2. Use this template:
 
 ```typescript
-import { Controller } from "@core";
+import { Controller } from "@yoeast/core";
 
 export default class PostsController extends Controller {
   async handle() {
