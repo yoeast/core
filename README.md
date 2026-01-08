@@ -5,13 +5,15 @@ A modern web framework built on [Bun](https://bun.sh) with file-based routing, i
 ## Quick Start
 
 ```bash
-# Install dependencies
-bun install
+# Create a new project
+bun create yoeast/core my-app
+cd my-app
 
 # Start MongoDB (required)
 docker compose up -d
 
-# Run the server
+# Install dependencies and run
+bun install
 bun cli serve
 ```
 

@@ -17,12 +17,10 @@ A modern, fast, and developer-friendly web framework built on [Bun](https://bun.
 ## Quick Start
 
 ```bash
-# Clone the repo
-git clone git@github.com:yoeast/core.git my-app
+bun create yoeast/core my-app
 cd my-app
+docker compose up -d
 bun install
-
-# Start development server
 bun cli serve
 ```
 
@@ -102,7 +100,7 @@ Visit `http://localhost:3000/hello` to see your response.
 ## Requirements
 
 - [Bun](https://bun.sh) v1.0 or later
-- Node.js 18+ (for some tooling)
+- Docker (for MongoDB and Redis)
 
 ## License
 

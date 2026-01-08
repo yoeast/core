@@ -5,8 +5,9 @@
 ## TL;DR
 
 ```bash
-git clone git@github.com:yoeast/core.git my-app
+bun create yoeast/core my-app
 cd my-app
+docker compose up -d
 bun install
 bun cli serve
 ```
@@ -14,32 +15,41 @@ bun cli serve
 ## Requirements
 
 - [Bun](https://bun.sh) v1.0 or later
-- MongoDB (for database features)
+- Docker (for MongoDB and Redis)
 
 ## Quick Reference
 
 | Command | Description |
 |---------|-------------|
+| `bun create yoeast/core my-app` | Create new project |
 | `bun install` | Install dependencies |
 | `bun cli serve` | Start dev server |
 | `bun test` | Run tests |
 
 ## Guide
 
-### 1. Clone the Starter
+### 1. Create a New Project
 
 ```bash
-git clone git@github.com:yoeast/core.git my-app
+bun create yoeast/core my-app
 cd my-app
 ```
 
-### 2. Install Dependencies
+### 2. Start Services
+
+Start MongoDB and Redis using Docker:
+
+```bash
+docker compose up -d
+```
+
+### 3. Install Dependencies
 
 ```bash
 bun install
 ```
 
-### 3. Configure Environment
+### 4. Configure Environment (Optional)
 
 Copy the example environment file:
 
@@ -57,16 +67,6 @@ PORT=3000
 # Database
 MONGODB_URI=mongodb://localhost:27017/myapp
 ```
-
-### 4. Start MongoDB
-
-Using Docker:
-
-```bash
-docker compose up -d
-```
-
-Or connect to an existing MongoDB instance via `MONGODB_URI`.
 
 ### 5. Start the Server
 
